@@ -242,3 +242,6 @@ Below is a conceptual view of how the project is structured:
     └── README.md            # This file
 
 --------------------------------------------------------------------------------
+
+With best regards,  
+*The Development Team*

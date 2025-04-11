@@ -14,7 +14,7 @@ const TodoList: React.FC = () => {
           setTasks([...tasks, { id: tasks.length + 1, text: event.currentTarget.value }]);
           setTaskAddState(false);
         }
-    }
+      }
 
     const handleAddTask = () => {
         setTaskAddState(!taskAddState);
