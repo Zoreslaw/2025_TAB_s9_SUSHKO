@@ -1,0 +1,15 @@
+.post{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.post h1{
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.post p{
+    font-size: 1.5rem;
+}

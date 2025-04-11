@@ -1,0 +1,49 @@
+.card{
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.card img{
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    user-select: none;
+}
+
+.card h3{
+    font-size: 1.5rem;
+    font-weight: bold;
+    user-select: none;
+}
+
+.card p{
+    font-size: 1rem;
+    color: #666;
+    user-select: none;
+}
+
+.card:hover{
+    transform: scale(1.05);
+}
+
+.card:active{
+    transform: scale(0.95);
+}
+
+.card:focus{
+    outline: none;
+}
+
+.card:focus-visible{
+    outline: none;
+}
+
+.card-list{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
