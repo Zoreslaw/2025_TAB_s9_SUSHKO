@@ -1,0 +1,40 @@
+Payment Handling
+
+POST /payments/create
+
+Purpose: Adding a payment.
+
+Request Method: POST
+{
+  "residentId": 1,
+  "amount": 500.00,
+  "paymentDate": "2025-03-21",
+  "description": "Monthly Rent"
+}
+
+Response Status: 201 Created
+{
+  "paymentId": 1,
+  "message": "Payment successfully recorded."
+}
+
+
+GET /payments/resident/{residentId}
+
+Purpose: Import a list of payments for a given resident.
+
+Response Status: 200 OK
+[
+  {
+    "paymentId": 1,
+    "amount": 500.00,
+    "paymentDate": "2025-03-21",
+    "description": "Monthly Rent"
+  },
+  {
+    "paymentId": 2,
+    "amount": 200.00,
+    "paymentDate": "2025-04-21",
+    "description": "Water Bill"
+  }
+]

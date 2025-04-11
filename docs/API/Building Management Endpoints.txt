@@ -1,0 +1,54 @@
+Building Management
+
+POST /buildings/create
+
+Purpose: Adding a new building
+
+Request Method: POST
+{
+  "buildingName": "Building A",
+  "address": "123 Main Street",
+  "numFloors": 10,
+  "description": "Main office building."
+}
+
+Response Status: 201 Created
+{
+  "buildingId": 1,
+  "message": "Building successfully created."
+}
+
+
+GET /buildings
+
+Purpose: Import building list
+
+Response Status: 200 OK
+[
+  {
+    "buildingId": 1,
+    "buildingName": "Building A",
+    "address": "123 Main Street",
+    "numFloors": 10
+  },
+  {
+    "buildingId": 2,
+    "buildingName": "Building B",
+    "address": "456 Market Street",
+    "numFloors": 8
+  }
+]
+
+
+DELETE /buildings/{buildingId}
+
+Purpose: Delete building
+
+Request Method: DELETE
+
+Response Status: 204 No Content
+
+Error Response:
+{
+  "error": "Building not found."
+}

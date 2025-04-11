@@ -1,0 +1,40 @@
+User Authentication & Registration
+
+POST /users/register
+
+Purpose: New User Registration.
+
+Request Method: POST
+{
+  "username": "Admin01",
+  "email": "admin01@example.com",
+  "password": "strongPassword123"
+}
+
+Response Status: 201 Created
+{
+  "userId": 1,
+  "message": "User successfully registered."
+}
+
+
+POST /users/login
+
+Purpose: User Login
+
+Request Method: POST
+{
+  "email": "admin01@example.com",
+  "password": "strongPassword123"
+}
+
+Response Status: 200 OK
+{
+  "userId": 1,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+
+Error Response:
+{
+  "error": "Invalid credentials."
+}

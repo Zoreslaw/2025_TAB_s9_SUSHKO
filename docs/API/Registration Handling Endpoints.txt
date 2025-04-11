@@ -1,0 +1,40 @@
+Registration Handling
+
+POST /residents/register
+
+Purpose: Registering a new resident in the system.
+
+Request Method: POST
+{
+  "buildingId": 1,
+  "name": "John Doe",
+  "apartmentNumber": 101,
+  "moveInDate": "2025-03-21"
+}
+
+Response Status: 201 Created
+{
+  "residentId": 1,
+  "message": "Resident successfully registered."
+}
+
+
+GET /residents
+
+Purpose: Import a list of all residents.
+
+Response Status: 200 OK
+[
+  {
+    "residentId": 1,
+    "name": "John Doe",
+    "apartmentNumber": 101,
+    "buildingId": 1
+  },
+  {
+    "residentId": 2,
+    "name": "Jane Smith",
+    "apartmentNumber": 202,
+    "buildingId": 1
+  }
+]
