@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import './zadanie2.css'
-import TaskCard from '../components/TaskCard'
+import TaskCard from '../components/TasksComponents/TaskCard'
 import { useTheme } from './zadanie6'
 type Todo = { id: number; text: string };
 

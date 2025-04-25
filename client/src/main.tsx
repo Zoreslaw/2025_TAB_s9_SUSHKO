@@ -6,11 +6,11 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './index.css'
 import App from './App.tsx'
-import { ThemeProvider } from './tasks/zadanie6.tsx'
+// import { ThemeProvider } from './tasks/zadanie6.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
+    {/* <ThemeProvider> */}
       <App />
-    </ThemeProvider>
+    {/* </ThemeProvider> */}
   </StrictMode>,
 )
