@@ -1,77 +1,62 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import './App.css';
+import Header from './components/header';
+import AdminPage from './pages/Adminpage';
+// import AdminToggle from './components/AdminToggle';
+import LoginPage from './pages/LoginPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './contexts/AuthContext';
+import { UserRoles } from './types/User';
 
-// import Test1 from './tasks/test1';
-// import Test2 from './tasks/test2';
-// import Test3 from './tasks/test3';
-// import Test4 from './tasks/test4';
-// import Test5 from './tasks/test5';
-// import Test from './tasks/test';
-// import DialogSelect from './components/DialogSelect';
-// import Test6 from './tasks/test6';
-// import Test7 from './tasks/test7';
-// import Test8 from './tasks/test8';
-// import Test9 from './tasks/test9';
-// import Test10 from './tasks/test10';
-// import Counter from './tasks/zadanie1';
-// import TodoList from './tasks/zadanie2';
-// import LoginForm from './tasks/zadanie3';
-// import CardList from './tasks/zadanie4';
-// import Post from './tasks/zadanie5';
-// import { useTheme } from './tasks/zadanie6';
-// import { IconButton } from '@mui/material';
-// import LightModeIcon from '@mui/icons-material/LightMode';
-// import DarkModeIcon from '@mui/icons-material/DarkMode';
+// Placeholder components
+const HomePage = () => <div>Home Page</div>;
+const KontaktPage = () => <div>Kontakt Page</div>;
+const DashboardPage = () => <div>Dashboard Page</div>;
+const UnauthorizedPage = () => <div>You don't have permission to access this page</div>;
 
-// const testComponents: { [key: string]: React.ReactElement } = {
-//   '1': <Test1 />,
-//   '2': <Test2 name='Lol'/>,
-//   '3': <Test3 />,
-//   '4': <Test4 />,
-//   '5': <Test5 />,
-//   'Zadanie 1': <Counter />,
-//   'Zadanie 2': <TodoList />,
-//   'Zadanie 3': <LoginForm />,
-//   'Zadanie 4': <CardList />,
-//   'Zadanie 5': <Post />,
-//   'Own Test': <Test />,
-// };
+const AppContent: React.FC = () => {  
+  return (
+    <Router>
+      <Header />
+      
+      <div className="app-container">
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          
+          {/* Protected routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/kontakt" element={<KontaktPage />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
+          </Route>
+          
+          {/* Admin routes */}
+          <Route element={<ProtectedRoute requiredRoles={[UserRoles.ADMIN]} />}>
+            <Route path="/admin" element={<AdminPage />} />
+          </Route>
+          
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+      
+      {/* Development admin toggle - would be removed in production */}
+      {/* <AdminToggle 
+        isAdmin={user?.role === UserRoles.ADMIN} 
+        toggleAdmin={() => alert('Role switching is handled by login in this version')} 
+      /> */}
+    </Router>
+  );
+};
 
 const App: React.FC = () => {
-  // const [selectedTest, setSelectedTest] = useState<string>('1');
-  //const { theme, toggleTheme } = useTheme()
-  // const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   setSelectedTest(e.target.value);
-  // };
-
-  // const handleOk = (value: string) => {
-  //   setSelectedTest(value);
-  // };
-
   return (
-    <div className="app-container">
-      {/* <header className="app-header">
-        <h1>React Test Assignments</h1>
-        <IconButton 
-          onClick={toggleTheme}
-          color='inherit'
-        >
-          {theme === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
-        </IconButton>
-        <DialogSelect 
-          onClose={() => {}} title="Select a test" options={Object.keys(testComponents).map((key) => ({
-            label: key,
-            value: key,
-            component: testComponents[key]
-          }))} 
-          onOk={handleOk} 
-          selectTitle="Select a test" 
-        />
-      </header>
-      <main className="app-main">
-        {testComponents[selectedTest]}
-      </main> */}
-    </div>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 
