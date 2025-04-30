@@ -362,7 +362,7 @@ const ObjectPanel: React.FC = () => {
       </TableContainer>
 
       {/* Pagination for apartments */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2, mt: 2 }}>
         <FormControl variant="outlined" size="small">
           <InputLabel>Rows per page</InputLabel>
           <Select
