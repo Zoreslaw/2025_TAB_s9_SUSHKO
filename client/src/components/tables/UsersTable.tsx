@@ -1,6 +1,9 @@
-import * as React from 'react';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { useState } from 'react';
+import { DataGrid, GridColDef, GridRenderCellParams, GridRowId } from '@mui/x-data-grid';
+import { Button, Stack, Box } from '@mui/material';
 import Paper from '@mui/material/Paper';
+import RegisterUserModal from '../modals/RegisterUserModal';
+import EditUserModal from '../modals/EditUserModal';
 
 // Returns dash, if value is null
 export function renderValueOrDash(params: GridRenderCellParams) {
@@ -115,14 +118,33 @@ const rows = [
 
 const paginationModel = { page: 0, pageSize: 5 };
 
+
 export default function UsersTable() {
+
   return (
-    <Paper sx={{ height: 800, width: '100%' }}>
+    <Paper sx={{ height: 800, width: '100%', py: 2, px: 3 }}>
+
+      {/* Buttons */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+        <Stack direction="row" spacing={2}>
+
+          {/* Add new user button */}
+          <RegisterUserModal />
+
+          {/* Edit user button */}
+          <Button variant="outlined">Edytuj</Button>
+
+        </Stack>
+      </Box>
+
+      {/* Table */}
       <DataGrid
         rows={rows}
         columns={columns}
+
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10, 15, 20]}
+      
         sx={{ border: 0 }}
       />
     </Paper>
