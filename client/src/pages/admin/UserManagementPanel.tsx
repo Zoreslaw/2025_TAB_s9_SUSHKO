@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import React from 'react';
 import { DataGrid, GridColDef, GridRenderCellParams, GridRowId } from '@mui/x-data-grid';
-import { Button, Stack, Box } from '@mui/material';
+import { Button, Stack, Box, TextField } from '@mui/material';
 import Paper from '@mui/material/Paper';
-import RegisterUserModal from '../modals/RegisterUserModal';
-import EditUserModal from '../modals/EditUserModal';
+import RegisterUserModal from '../../components/modals/RegisterUserModal';
+import EditUserModal from '../../components/modals/EditUserModal';
+
 
 // Returns dash, if value is null
 export function renderValueOrDash(params: GridRenderCellParams) {
@@ -116,37 +117,57 @@ const rows = [
   }
 ];
 
-const paginationModel = { page: 0, pageSize: 5 };
+const paginationModel = { page: 0, pageSize: 10 };
 
+const UserManagementPanel: React.FC = () => {
 
-export default function UsersTable() {
+  const [search, setSearch] = React.useState('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value.toLowerCase());
+  };
+
+  const filteredRows = rows.filter((row) =>
+    Object.values(row).some((val) =>
+      val?.toString().toLowerCase().includes(search)
+    )
+  );
 
   return (
-    <Paper sx={{ height: 800, width: '100%', py: 2, px: 3 }}>
-
-      {/* Buttons */}
+    <Paper sx={{ height: 800, width: '98%', py: 2, px: 3 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+
         <Stack direction="row" spacing={2}>
 
-          {/* Add new user button */}
-          <RegisterUserModal />
+          {/* Search field */}
+          <TextField
+            size="small"
+            label="Wyszukaj..."
+            value={search}
+            onChange={handleSearchChange}
+          />
 
           {/* Edit user button */}
           <Button variant="outlined">Edytuj</Button>
+
+          {/* Add new user button */}
+          <RegisterUserModal />
 
         </Stack>
       </Box>
 
       {/* Table */}
       <DataGrid
-        rows={rows}
+        rows={filteredRows}
         columns={columns}
 
         initialState={{ pagination: { paginationModel } }}
-        pageSizeOptions={[5, 10, 15, 20]}
       
         sx={{ border: 0 }}
       />
     </Paper>
   );
-}
+
+};
+
+export default UserManagementPanel;

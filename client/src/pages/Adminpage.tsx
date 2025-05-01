@@ -1,12 +1,22 @@
 import React from 'react';
-import UsersTable from '../components/tables/UsersTable';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 
-const AdminPage: React.FC = () => {
-  return (
-    <div>
-      <UsersTable />
-    </div>
-  )
+const App: React.FC = () => {
+  const navigate = useNavigate();
+ 
+   const handleNavigate = () => {
+     navigate('/users');
+   };
+ 
+   return (
+     <div>
+       <Button variant="contained" color="primary" onClick={handleNavigate}>
+        Users Panel
+       </Button>
+       
+     </div>
+   );
 };
 
-export default AdminPage;
+export default App;
