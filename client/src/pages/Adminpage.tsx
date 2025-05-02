@@ -1,21 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import { Box } from '@mui/material';
+import AdminSidebar from '../components/sidebars/AdminSidebar'
 
 const App: React.FC = () => {
-  const navigate = useNavigate();
- 
-   const handleNavigate = () => {
-     navigate('/users');
-   };
+
  
    return (
-     <div>
-       <Button variant="contained" color="primary" onClick={handleNavigate}>
-        Users Panel
-       </Button>
-       
-     </div>
+    <Box sx={{ display: 'flex' }}>
+      <AdminSidebar />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Outlet />
+      </Box>
+    </Box>
    );
 };
 

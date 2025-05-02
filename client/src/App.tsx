@@ -36,8 +36,9 @@ const AppContent: React.FC = () => {
           
           {/* Admin routes */}
           <Route element={<ProtectedRoute requiredRoles={[UserRoles.ADMIN]} />}>
-            <Route path="/admin" element={<AdminPage />} />
-            <Route path="/users" element={<UserManagementPanel />} />
+            <Route path="/admin" element={<AdminPage />}>
+              <Route path="users" element={<UserManagementPanel />} />
+            </Route>
           </Route>
           
           {/* Catch all route */}

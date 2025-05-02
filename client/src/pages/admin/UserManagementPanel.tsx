@@ -134,7 +134,7 @@ const UserManagementPanel: React.FC = () => {
   );
 
   return (
-    <Paper sx={{ height: 800, width: '98%', py: 2, px: 3 }}>
+    <Paper sx={{ height: 800, width: '98%', marginTop: '1px', boxShadow:0 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
 
         <Stack direction="row" spacing={2}>
