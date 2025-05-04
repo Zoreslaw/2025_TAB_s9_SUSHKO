@@ -1,27 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@mui/material';
+import { Outlet } from 'react-router-dom';
+import { Box } from '@mui/material';
+import AdminSidebar from '../components/sidebars/AdminSidebar';
 //import ObjectPanel from './admin/ObjectPanel';
 
 const AdminPage: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleNavigate = () => {
-    navigate('/object');
-  };
-
   return (
-    <div>
-      <h2>Admin Page</h2>
-      <Button variant="contained" color="primary" onClick={handleNavigate}>
-        Go to Object Panel
-      </Button>
-      
-    </div>
-
-    
+    <Box sx={{ display: 'flex' }}>
+       <AdminSidebar />
+       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+         <Outlet />
+       </Box>
+     </Box>
   );
 };
 
 export default AdminPage;
-
