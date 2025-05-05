@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import './App.css';
 import Header from './components/header';
 import AdminPage from './pages/Adminpage';
-import UserManagementPanel from './pages/admin/UserManagementPanel';
+import ObjectPanel from './pages/admin/ObjectPanel';
 // import AdminToggle from './components/AdminToggle';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -37,6 +37,7 @@ const AppContent: React.FC = () => {
           {/* Admin routes */}
           <Route element={<ProtectedRoute requiredRoles={[UserRoles.ADMIN]} />}>
             <Route path="/admin" element={<AdminPage />}>
+              <Route path="object" element={<ObjectPanel />} />
               <Route path="users" element={<UserManagementPanel />} />
             </Route>
           </Route>
