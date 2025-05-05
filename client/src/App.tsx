@@ -4,6 +4,7 @@ import './App.css';
 import Header from './components/header';
 import AdminPage from './pages/Adminpage';
 import ObjectPanel from './pages/admin/ObjectPanel';
+import UserManagementPanel from './pages/admin/UserManagementPanel';
 // import AdminToggle from './components/AdminToggle';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';

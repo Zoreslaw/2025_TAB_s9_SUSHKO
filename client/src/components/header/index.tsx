@@ -12,7 +12,7 @@ const Header: React.FC = () => {
   const isAdmin = user?.role === UserRoles.ADMIN;
 
   return (
-    <AppBar position="static" sx={{ backgroundColor: 'white', color: 'black', boxShadow: 1 }}>
+    <AppBar position="static" sx={{ backgroundColor: 'white', color: 'black', boxShadow: 1, position: 'fixed', zIndex: 1000 }}>
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant="h6" component={Link} to="/" sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}>
           MieszkaMy.pl

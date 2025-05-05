@@ -38,6 +38,7 @@ export default function AdminSidebar() {
         '& .MuiDrawer-paper': {
           width: drawerWidth,
           boxSizing: 'border-box',
+          // marginTop: '65px',
           marginTop: '65px',
         },
       }}
