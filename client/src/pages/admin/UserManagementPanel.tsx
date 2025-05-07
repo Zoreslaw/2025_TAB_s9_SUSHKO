@@ -4,18 +4,17 @@ import { Button, Stack, Box, TextField } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import RegisterUserModal from '../../components/modals/RegisterUserModal';
 import EditUserModal from '../../components/modals/EditUserModal';
+import { useUserTable } from '../../hooks/useUserTable';
 
 
-// Returns dash, if value is null
-export function renderValueOrDash(params: GridRenderCellParams) {
-  return params.value ?? '-';
-}
+// Render dash, if value is null
+const renderValueOrDash = (params: GridRenderCellParams) => params.value ?? '-';
 
 // Returns dash, if date is null
-export function renderDateOrDash(params: GridRenderCellParams) {
-  return params.value ? new Date(params.value).toLocaleDateString() : '-';
-}
+const renderDateOrDash = (params: GridRenderCellParams) =>
+  params.value ? new Date(params.value).toLocaleDateString() : '-';
 
+// Columns structure
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 70 },
   { field: 'firstName', headerName: 'Imię', width: 130 },
@@ -117,21 +116,16 @@ const rows = [
   }
 ];
 
-const paginationModel = { page: 0, pageSize: 10 };
 
 const UserManagementPanel: React.FC = () => {
 
-  const [search, setSearch] = React.useState('');
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value.toLowerCase());
-  };
-
-  const filteredRows = rows.filter((row) =>
-    Object.values(row).some((val) =>
-      val?.toString().toLowerCase().includes(search)
-    )
-  );
+  const {
+    search,
+    filteredRows,
+    handleSearchChange,
+    addUser,
+    updateUser,
+  } = useUserTable(rows);
 
   return (
     <Paper sx={{ height: 800, width: '98%', marginTop: '1px', boxShadow:0 }}>
@@ -144,7 +138,7 @@ const UserManagementPanel: React.FC = () => {
             size="small"
             label="Wyszukaj..."
             value={search}
-            onChange={handleSearchChange}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
 
           {/* Edit user button */}
@@ -161,8 +155,9 @@ const UserManagementPanel: React.FC = () => {
         rows={filteredRows}
         columns={columns}
 
-        initialState={{ pagination: { paginationModel } }}
-      
+        initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
+        pageSizeOptions={[5, 10, 20, 30]}
+
         sx={{ border: 0 }}
       />
     </Paper>
