@@ -27,105 +27,17 @@ const columns: GridColDef[] = [
   { field: 'moveoutDate', headerName: 'Data wyprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
 ];
 
-// Random mock data
-const rows = [
-  { id: 1, 
-    lastName: 'Snow', 
-    firstName: 'Jon', 
-    role: 'Administrator', 
-    status: 'Aktywny',
-    adress: 'Kwiatowa 12',
-    apartementNumber: 23,
-    moveinDate: new Date('2022-03-22'),
-    moveoutDate: new Date('2044-12-11') },
-    { 
-      id: 2, 
-      lastName: 'Kowalski', 
-      firstName: 'Adam', 
-      role: 'Menadżer', 
-      status: 'Aktywny',
-      adress: null,
-      apartementNumber: null,
-      moveinDate: null,
-      moveoutDate: null
-  },
-  { 
-      id: 3, 
-      lastName: 'Nowak', 
-      firstName: 'Anna', 
-      role: 'Mieszkaniec', 
-      status: 'Nieaktywny',
-      adress: 'Jasnogórska 4',
-      apartementNumber: 2,
-      moveinDate: new Date('2020-08-01'),
-      moveoutDate: new Date('2024-02-22') 
-  },
-  { 
-      id: 4, 
-      lastName: 'Szymański', 
-      firstName: 'Marek', 
-      role: 'Menadżer', 
-      status: 'Aktywny',
-      adress: null,
-      apartementNumber: null,
-      moveinDate: null,
-      moveoutDate: null
-  },
-  { 
-      id: 5, 
-      lastName: 'Wiśniewski', 
-      firstName: 'Michał', 
-      role: 'Najemca', 
-      status: 'Aktywny',
-      adress: 'Wielka 28',
-      apartementNumber: 5,
-      moveinDate: new Date('2023-01-10')
-  },
-  { 
-      id: 6, 
-      lastName: 'Zieliński', 
-      firstName: 'Karolina', 
-      role: 'Menadżer', 
-      status: 'Aktywny',
-      adress: null,
-      apartementNumber: null,
-      moveinDate: null,
-      moveoutDate: null
-  },
-  { 
-      id: 7, 
-      lastName: 'Mazur', 
-      firstName: 'Paweł', 
-      role: 'Mieszkaniec', 
-      status: 'Nieaktywny',
-      adress: 'Zielona 9',
-      apartementNumber: 12,
-      moveinDate: new Date('2018-03-10'),
-      moveoutDate: new Date('2022-07-30') 
-  },
-  { 
-      id: 8, 
-      lastName: 'Jankowski', 
-      firstName: 'Tomasz', 
-      role: 'Najemca', 
-      status: 'Aktywny',
-      adress: 'Lwowska 13',
-      apartementNumber: 9,
-      moveinDate: new Date('2022-07-15'),
-      moveoutDate: new Date('2031-09-20') 
-  }
-];
-
-
 const UserManagementPanel: React.FC = () => {
 
   const {
     search,
     filteredRows,
     handleSearchChange,
-    addUser,
-    updateUser,
-  } = useUserTable(rows);
+  } = useUserTable();
+
+  const [selectedRowId, setSelectedRowId] = React.useState<GridRowId | null>(null);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+  const selectedUser = filteredRows.find(row => row.id === selectedRowId) || null;
 
   return (
     <Paper sx={{ height: 800, width: '98%', marginTop: '1px', boxShadow:0 }}>
@@ -142,7 +54,20 @@ const UserManagementPanel: React.FC = () => {
           />
 
           {/* Edit user button */}
-          <Button variant="outlined">Edytuj</Button>
+          <Button
+            variant="outlined"
+            disabled={!selectedRowId}
+            onClick={() => setEditModalOpen(true)}
+            >
+            Edytuj
+          </Button>
+
+          {/* Edit user modal open */}
+          <EditUserModal
+            open={editModalOpen}
+            onClose={() => setEditModalOpen(false)}
+            userData={selectedUser}
+          />
 
           {/* Add new user button */}
           <RegisterUserModal />
@@ -154,6 +79,7 @@ const UserManagementPanel: React.FC = () => {
       <DataGrid
         rows={filteredRows}
         columns={columns}
+        onRowClick={(params) => setSelectedRowId(params.id)}
 
         initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
         pageSizeOptions={[5, 10, 20, 30]}
