@@ -12,7 +12,7 @@ export interface EditUserFormData {
   role: string;
 }
 
-export function useEditUserForm(userData: any) {
+export function useEditUserForm(userData: any, onClose: () => void) {
   const [form, setForm] = useState<EditUserFormData>({
     firstName: '',
     lastName: '',
@@ -34,10 +34,10 @@ export function useEditUserForm(userData: any) {
       setForm({
         firstName: userData.firstName || '',
         lastName: userData.lastName || '',
-        address: userData.adress || '',
-        apartmentNumber: userData.apartementNumber || 0,
-        moveInDate: userData.moveinDate ? new Date(userData.moveinDate).toISOString().split('T')[0] : '',
-        moveOutDate: userData.moveoutDate ? new Date(userData.moveoutDate).toISOString().split('T')[0] : '',
+        address: userData.address || null,
+        apartmentNumber: userData.apartmentNumber || null,
+        moveInDate: userData.moveInDate ? new Date(userData.moveInDate).toISOString().split('T')[0] : '',
+        moveOutDate: userData.moveOutDate ? new Date(userData.moveOutDate).toISOString().split('T')[0] : '',
         status: userData.status || '',
         role: userData.role || 'Mieszkaniec',
       });
@@ -52,8 +52,35 @@ export function useEditUserForm(userData: any) {
     setForm(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleClose = () => {
+    setErrors({});
+    onClose();
+    window.location.reload()
+  };
+
   const handleSubmit = () => {
     if (isFormValid()) {
+      
+      // Temporary solution
+      const updatedUser = {
+      ...form,
+      id: userData.id, 
+      apartmentNumber: form.apartmentNumber ? Number(form.apartmentNumber) : null,
+      moveInDate: form.moveInDate ? new Date(form.moveInDate) : null,
+      moveOutDate: form.moveOutDate ? new Date(form.moveOutDate) : null,
+      };
+      
+      const existingUsersJSON = localStorage.getItem('users');
+      const existingUsers = existingUsersJSON ? JSON.parse(existingUsersJSON) : [];
+
+      const updatedUsers = existingUsers.map((user: any) =>
+      user.id === updatedUser.id ? updatedUser : user
+      );
+
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+
+      handleClose();
+
       // Send data to DB
     }
   };
@@ -72,7 +99,6 @@ export function useEditUserForm(userData: any) {
       if (!form.address || !validateAddress(form.address)) newErrors.address = true;
       if (!form.apartmentNumber) newErrors.apartmentNumber = true;
       if (!form.moveInDate) newErrors.moveInDate = true;
-      if (!form.moveOutDate) newErrors.moveOutDate = true;
     }
     if (!form.status) newErrors.status = true;
 

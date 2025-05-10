@@ -17,7 +17,7 @@ export default function EditUserModal({ open, onClose, userData }: {
     isResident, 
     handleChange, 
     handleSubmit, 
-  } = useEditUserForm(userData);
+  } = useEditUserForm(userData, onClose);
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth={isResident ? 'sm' : 'xs'} fullWidth>

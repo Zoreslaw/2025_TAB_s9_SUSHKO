@@ -21,10 +21,10 @@ const columns: GridColDef[] = [
   { field: 'lastName', headerName: 'Nazwisko', width: 130 },
   { field: 'role', headerName: 'Rodzaj konta', width: 130, },
   { field: 'status', headerName: 'Status', width: 130, },
-  { field: 'adress', headerName: 'Adres', width: 160, renderCell: renderValueOrDash },
-  { field: 'apartementNumber', headerName: 'Numer mieszkania', type: 'number', align: 'left', width: 140, renderCell: renderValueOrDash },
-  { field: 'moveinDate', headerName: 'Data wprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
-  { field: 'moveoutDate', headerName: 'Data wyprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
+  { field: 'address', headerName: 'Adres', width: 160, renderCell: renderValueOrDash },
+  { field: 'apartmentNumber', headerName: 'Numer mieszkania', type: 'number', align: 'left', width: 140, renderCell: renderValueOrDash },
+  { field: 'moveInDate', headerName: 'Data wprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
+  { field: 'moveOutDate', headerName: 'Data wyprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
 ];
 
 const UserManagementPanel: React.FC = () => {
@@ -81,7 +81,7 @@ const UserManagementPanel: React.FC = () => {
         columns={columns}
         onRowClick={(params) => setSelectedRowId(params.id)}
 
-        initialState={{ pagination: { paginationModel: { page: 0, pageSize: 10 } } }}
+        initialState={{ pagination: { paginationModel: { page: 0, pageSize: 20 } } }}
         pageSizeOptions={[5, 10, 20, 30]}
 
         sx={{ border: 0 }}

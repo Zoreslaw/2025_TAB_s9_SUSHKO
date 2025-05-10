@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 const initialForm = {
   firstName: '',
   lastName: '',
-  address: '',
+  address: null,
   apartmentNumber: '',
   moveInDate: '',
   moveOutDate: '',
@@ -67,7 +67,6 @@ export function useRegisterUserForm() {
       if (!form.address || !validateAddress(form.address)) newErrors.address = true;
       if (!form.apartmentNumber) newErrors.apartmentNumber = true;
       if (!form.moveInDate) newErrors.moveInDate = true;
-      if (!form.moveOutDate) newErrors.moveOutDate = true;
     }
     if (!form.status) newErrors.status = true;
     if (!form.login) newErrors.login = true;
@@ -82,10 +81,36 @@ export function useRegisterUserForm() {
     setForm(initialForm);
     setLoginManuallyChanged(false);
     setErrors({});
+    window.location.reload()
+  };
+
+  
+  // Key for local storage
+  const STORAGE_KEY = 'users';
+
+  // Temporary solution
+  const addUserToLocalStorage = (newUser: any) => {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const users = stored ? JSON.parse(stored) : [];
+
+  const newId = users.length > 0 ? Math.max(...users.map((u: any) => u.id)) + 1 : 1;
+  const parsedUser = {
+    ...newUser,
+    id: newId,
+    apartmentNumber: newUser.apartmentNumber ? parseInt(newUser.apartmentNumber, 10) : null,
+    moveInDate: newUser.moveInDate ? new Date(newUser.moveInDate) : null,
+    moveOutDate: newUser.moveOutDate ? new Date(newUser.moveOutDate) : null,
+  };
+
+  users.push(parsedUser);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
   };
 
   const handleSubmit = () => {
     if (!isFormValid()) return;
+
+    addUserToLocalStorage(form);
+    handleClose();
 
     // Send data to DB
   };
