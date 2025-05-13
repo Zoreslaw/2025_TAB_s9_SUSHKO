@@ -1,70 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, TextField, MenuItem,
   Button, Box, IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import { useRegisterUserForm } from '../../hooks/useRegisterUserForm';
 
 const ROLES = ['Mieszkaniec', 'Najemca', 'Menadżer'];
-const isResidentRole = (role: string) => role === 'Mieszkaniec' || role === 'Najemca';
 
 export default function RegisterUserModal() {
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    apartmentNumber: '',
-    moveInDate: '',
-    moveOutDate: '',
-    status: '',
-    login: '',
-    role: 'Mieszkaniec',
-  });
-  const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
-
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    setForm({
-      firstName: '',
-      lastName: '',
-      address: '',
-      apartmentNumber: '',
-      moveInDate: '',
-      moveOutDate: '',
-      status: '',
-      login: '',
-      role: 'Mieszkaniec',
-    });
-    setLoginManuallyChanged(false);
-  };
-
-  useEffect(() => {
-    const { firstName, lastName} = form;
-    if (firstName && lastName && !loginManuallyChanged) {
-      const initials = firstName[0]?.toLowerCase() + lastName[0]?.toLowerCase();
-      const random = Math.floor(10000 + Math.random() * 90000);
-      setForm(prev => ({ ...prev, login: `${initials}${random}` }));
-    }
-  }, [form.firstName, form.lastName, form.role, loginManuallyChanged]);
-
-  const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-
-    if (field === 'apartmentNumber' && value && parseInt(value) < 0) return;
-
-    setForm(prev => ({ ...prev, [field]: value }));
-
-    if (['firstName', 'lastName'].includes(field)) {
-      setLoginManuallyChanged(false);
-    }
-    if (field === 'login') {
-      setLoginManuallyChanged(true);
-    }
-  };
-
-  const isResident = isResidentRole(form.role);
+  const {
+    open,
+    form,
+    isResident,
+    errors,
+    handleOpen,
+    handleClose,
+    handleChange,
+    handleRoleChange,
+    handleSubmit
+  } = useRegisterUserForm();
 
   return (
     <>
@@ -87,9 +42,29 @@ export default function RegisterUserModal() {
               gap: 2,
             }}
           >
-            <TextField label="Imię" value={form.firstName} onChange={handleChange('firstName')} fullWidth />
-            {isResident && <TextField label="Adres" value={form.address} onChange={handleChange('address')} fullWidth />}
-            <TextField label="Nazwisko" value={form.lastName} onChange={handleChange('lastName')} fullWidth />
+            <TextField
+              label="Imię"
+              value={form.firstName}
+              onChange={handleChange('firstName')}
+              error={errors.firstName}
+              fullWidth
+            />
+            {isResident && (
+              <TextField
+                label="Adres"
+                value={form.address}
+                onChange={handleChange('address')}
+                error={errors.address}
+                fullWidth
+              />
+            )}
+            <TextField
+              label="Nazwisko"
+              value={form.lastName}
+              onChange={handleChange('lastName')}
+              error={errors.lastName}
+              fullWidth
+            />
             {isResident && (
               <TextField
                 label="Numer mieszkania"
@@ -97,6 +72,7 @@ export default function RegisterUserModal() {
                 inputProps={{ min: 0 }}
                 value={form.apartmentNumber}
                 onChange={handleChange('apartmentNumber')}
+                error={errors.apartmentNumber}
                 fullWidth
               />
             )}
@@ -104,10 +80,7 @@ export default function RegisterUserModal() {
               select
               label="Rodzaj konta"
               value={form.role}
-              onChange={(e) => {
-                setForm(prev => ({ ...prev, role: e.target.value, login: '' }));
-                setLoginManuallyChanged(false);
-              }}
+              onChange={(e) => handleRoleChange(e.target.value)}
               fullWidth
             >
               {ROLES.map(role => (
@@ -121,6 +94,7 @@ export default function RegisterUserModal() {
                 InputLabelProps={{ shrink: true }}
                 value={form.moveInDate}
                 onChange={handleChange('moveInDate')}
+                error={errors.moveInDate}
                 fullWidth
               />
             )}
@@ -129,6 +103,7 @@ export default function RegisterUserModal() {
               label="Status"
               value={form.status}
               onChange={handleChange('status')}
+              error={errors.status}
               fullWidth
             >
               <MenuItem value="Aktywny">Aktywny</MenuItem>
@@ -141,6 +116,7 @@ export default function RegisterUserModal() {
                 InputLabelProps={{ shrink: true }}
                 value={form.moveOutDate}
                 onChange={handleChange('moveOutDate')}
+                error={errors.moveOutDate}
                 fullWidth
               />
             )}
@@ -148,6 +124,7 @@ export default function RegisterUserModal() {
               label="Sugerowany login"
               value={form.login}
               onChange={handleChange('login')}
+              error={errors.login}
               fullWidth
             />
             <Box
@@ -158,7 +135,7 @@ export default function RegisterUserModal() {
                 mt: 1,
               }}
             >
-              <Button variant="contained">Dodaj</Button>
+              <Button variant="contained" onClick={handleSubmit}>Dodaj</Button>
             </Box>
           </Box>
         </DialogContent>
