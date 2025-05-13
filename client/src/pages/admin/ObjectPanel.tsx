@@ -182,8 +182,7 @@ const ObjectPanel: React.FC = () => {
 
   // Return
   return (
-    <div style={{ padding: 20 }}>
-      {/* Buildings */}
+    <>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
         {/* Autocomplete text field with suggestions and selection */}
         <Autocomplete
@@ -429,7 +428,7 @@ const ObjectPanel: React.FC = () => {
           {mode === 'edit' && <Button onClick={handleDeleteApartment} color="error">Usuń</Button>}
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 };
 
