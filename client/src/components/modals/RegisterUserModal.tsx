@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, TextField, MenuItem,
   Button, Box, IconButton
@@ -6,32 +6,55 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import { useRegisterUserForm } from '../../hooks/useRegisterUserForm';
 
-const ROLES = ['Mieszkaniec', 'Najemca', 'Menadżer'];
-
 export default function RegisterUserModal() {
   const {
-    open,
     form,
-    isResident,
     errors,
-    handleOpen,
-    handleClose,
+    isResident,
     handleChange,
-    handleRoleChange,
-    handleSubmit
+    handleSetRole,
+    handleClose,
+    handleSubmit,
   } = useRegisterUserForm();
+
+  const [roleModalOpen, setRoleModalOpen] = useState(false); 
+  const [formModalOpen, setFormModalOpen] = useState(false); 
+
+  const openModal = () => setRoleModalOpen(true);
+  const handleSelectRole = (role: string) => {
+    handleSetRole(role);      
+    setRoleModalOpen(false);     
+    setFormModalOpen(true); 
+  };
 
   return (
     <>
-      <Button variant="contained" onClick={handleOpen}>Dodaj</Button>
-      <Dialog open={open} onClose={handleClose} maxWidth={isResident ? 'sm' : 'xs'} fullWidth>
-        <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between' }}>
+      <Button variant="contained" onClick={openModal}>Dodaj</Button>
+
+      {/* User type selection modal */}
+      <Dialog open={roleModalOpen} onClose={handleClose} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          Wybierz rodzaj użytkownika
+          <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
+            <Button variant="contained" onClick={() => handleSelectRole('Mieszkaniec')}>Mieszkaniec</Button>
+            <Button variant="contained" onClick={() => handleSelectRole('Menadżer')}>Menadżer</Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* User registration modal */}
+      <Dialog open={formModalOpen} onClose={handleClose} maxWidth={isResident ? 'sm' : 'xs'} fullWidth>
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
           Zarejestruj użytkownika
           <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-
         <DialogContent>
           <Box
             component="form"
@@ -42,6 +65,7 @@ export default function RegisterUserModal() {
               gap: 2,
             }}
           >
+            {isResident && (
             <TextField
               label="Imię"
               value={form.firstName}
@@ -49,6 +73,16 @@ export default function RegisterUserModal() {
               error={errors.firstName}
               fullWidth
             />
+            )}
+            {isResident && (
+            <TextField
+              label="Nazwisko"
+              value={form.lastName}
+              onChange={handleChange('lastName')}
+              error={errors.lastName}
+              fullWidth
+            />
+            )}
             {isResident && (
               <TextField
                 label="Adres"
@@ -58,13 +92,6 @@ export default function RegisterUserModal() {
                 fullWidth
               />
             )}
-            <TextField
-              label="Nazwisko"
-              value={form.lastName}
-              onChange={handleChange('lastName')}
-              error={errors.lastName}
-              fullWidth
-            />
             {isResident && (
               <TextField
                 label="Numer mieszkania"
@@ -76,17 +103,6 @@ export default function RegisterUserModal() {
                 fullWidth
               />
             )}
-            <TextField
-              select
-              label="Rodzaj konta"
-              value={form.role}
-              onChange={(e) => handleRoleChange(e.target.value)}
-              fullWidth
-            >
-              {ROLES.map(role => (
-                <MenuItem key={role} value={role}>{role}</MenuItem>
-              ))}
-            </TextField>
             {isResident && (
               <TextField
                 label="Data wprowadzenia"
@@ -120,6 +136,7 @@ export default function RegisterUserModal() {
                 fullWidth
               />
             )}
+            {isResident && (
             <TextField
               label="Sugerowany login"
               value={form.login}
@@ -127,6 +144,16 @@ export default function RegisterUserModal() {
               error={errors.login}
               fullWidth
             />
+            )}
+            {!isResident && (
+            <TextField
+              label="Login"
+              value={form.login}
+              onChange={handleChange('login')}
+              error={errors.login}
+              fullWidth
+            />
+            )}
             <Box
               sx={{
                 gridColumn: isResident ? 'span 2' : 'span 1',
