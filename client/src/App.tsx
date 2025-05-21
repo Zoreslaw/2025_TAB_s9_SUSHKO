@@ -10,7 +10,6 @@ import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { UserRoles } from './types/User';
-import UserManagementPanel from './pages/admin/UserManagementPanel';
 
 // Placeholder components
 const HomePage = () => <div>Home Page</div>;
