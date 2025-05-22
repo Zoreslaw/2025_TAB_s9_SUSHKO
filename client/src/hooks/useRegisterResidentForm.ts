@@ -12,29 +12,20 @@ const initialForm = {
   role: '',
 };
 
-export function useRegisterUserForm() {
+export function useRegisterResidentForm() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
-  const [isResident, setIsResident] = useState(false);
-
-  const isResidentRole = (role: string) => role === 'Mieszkaniec' || role === 'Najemca';
-
-  const handleSetRole = (role: string) => {
-    setIsResident(isResidentRole(role));
-    form.role = role;
-  };
 
   // Auto-generate login
   useEffect(() => {
-    if(isResident){
-      const { firstName, lastName } = form;
-      if (firstName && lastName && !loginManuallyChanged) {
-        const initials = firstName[0]?.toLowerCase() + lastName[0]?.toLowerCase();
-        const random = Math.floor(10000 + Math.random() * 90000);
-        setForm(prev => ({ ...prev, login: `${initials}${random}` }));
-      }}
+    const { firstName, lastName } = form;
+    if (firstName && lastName && !loginManuallyChanged) {
+      const initials = firstName[0]?.toLowerCase() + lastName[0]?.toLowerCase();
+      const random = Math.floor(10000 + Math.random() * 90000);
+      setForm(prev => ({ ...prev, login: `${initials}${random}` }));
+    }
     }, [form.firstName, form.lastName, form.role, loginManuallyChanged]);
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,13 +52,11 @@ export function useRegisterUserForm() {
   const isFormValid = () => {
     const newErrors: Record<string, boolean> = {};
    
-    if (isResident) {
-      if (!form.firstName || !validateName(form.firstName)) newErrors.firstName = true;
-      if (!form.lastName || !validateName(form.lastName)) newErrors.lastName = true;
-      if (!form.address || !validateAddress(form.address)) newErrors.address = true;
-      if (!form.apartmentNumber) newErrors.apartmentNumber = true;
-      if (!form.moveInDate) newErrors.moveInDate = true;
-    }
+    if (!form.firstName || !validateName(form.firstName)) newErrors.firstName = true;
+    if (!form.lastName || !validateName(form.lastName)) newErrors.lastName = true;
+    if (!form.address || !validateAddress(form.address)) newErrors.address = true;
+    if (!form.apartmentNumber) newErrors.apartmentNumber = true;
+    if (!form.moveInDate) newErrors.moveInDate = true;
     if (!form.status) newErrors.status = true;
     if (!form.login) newErrors.login = true;
 
@@ -117,9 +106,7 @@ export function useRegisterUserForm() {
   return {
     form,
     errors,
-    isResident,
     handleChange,
-    handleSetRole,
     handleClose,
     handleSubmit,
   };

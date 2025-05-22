@@ -1,56 +1,28 @@
-import React, { useState } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, TextField, MenuItem,
   Button, Box, IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useRegisterUserForm } from '../../hooks/useRegisterUserForm';
+import { useRegisterResidentForm } from '../../hooks/useRegisterResidentForm';
 
-export default function RegisterUserModal() {
+export default function RegisterResidentModal({ open }: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const {
     form,
     errors,
-    isResident,
     handleChange,
-    handleSetRole,
     handleClose,
     handleSubmit,
-  } = useRegisterUserForm();
-
-  const [roleModalOpen, setRoleModalOpen] = useState(false); 
-  const [formModalOpen, setFormModalOpen] = useState(false); 
-
-  const openModal = () => setRoleModalOpen(true);
-  const handleSelectRole = (role: string) => {
-    handleSetRole(role);      
-    setRoleModalOpen(false);     
-    setFormModalOpen(true); 
-  };
+  } = useRegisterResidentForm();
 
   return (
     <>
-      <Button variant="contained" onClick={openModal}>Dodaj</Button>
 
-      {/* User type selection modal */}
-      <Dialog open={roleModalOpen} onClose={handleClose} maxWidth="xs" fullWidth>
+      <Dialog open={open} onClose={handleClose} maxWidth={'sm'} fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          Wybierz rodzaj użytkownika
-          <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <Button variant="contained" onClick={() => handleSelectRole('Mieszkaniec')}>Mieszkaniec</Button>
-            <Button variant="contained" onClick={() => handleSelectRole('Menadżer')}>Menadżer</Button>
-          </Box>
-        </DialogContent>
-      </Dialog>
-
-      {/* User registration modal */}
-      <Dialog open={formModalOpen} onClose={handleClose} maxWidth={isResident ? 'sm' : 'xs'} fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          Zarejestruj użytkownika
+          Zarejestruj mieszkańca
           <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
             <CloseIcon />
           </IconButton>
@@ -61,11 +33,9 @@ export default function RegisterUserModal() {
             sx={{
               mt: 2,
               display: 'grid',
-              gridTemplateColumns: isResident ? '1fr 1fr' : '1fr',
               gap: 2,
             }}
           >
-            {isResident && (
             <TextField
               label="Imię"
               value={form.firstName}
@@ -73,8 +43,6 @@ export default function RegisterUserModal() {
               error={errors.firstName}
               fullWidth
             />
-            )}
-            {isResident && (
             <TextField
               label="Nazwisko"
               value={form.lastName}
@@ -82,8 +50,6 @@ export default function RegisterUserModal() {
               error={errors.lastName}
               fullWidth
             />
-            )}
-            {isResident && (
               <TextField
                 label="Adres"
                 value={form.address}
@@ -91,8 +57,6 @@ export default function RegisterUserModal() {
                 error={errors.address}
                 fullWidth
               />
-            )}
-            {isResident && (
               <TextField
                 label="Numer mieszkania"
                 type="number"
@@ -102,8 +66,6 @@ export default function RegisterUserModal() {
                 error={errors.apartmentNumber}
                 fullWidth
               />
-            )}
-            {isResident && (
               <TextField
                 label="Data wprowadzenia"
                 type="date"
@@ -113,7 +75,6 @@ export default function RegisterUserModal() {
                 error={errors.moveInDate}
                 fullWidth
               />
-            )}
             <TextField
               select
               label="Status"
@@ -125,7 +86,6 @@ export default function RegisterUserModal() {
               <MenuItem value="Aktywny">Aktywny</MenuItem>
               <MenuItem value="Nieaktywny">Nieaktywny</MenuItem>
             </TextField>
-            {isResident && (
               <TextField
                 label="Data wyprowadzenia"
                 type="date"
@@ -135,8 +95,6 @@ export default function RegisterUserModal() {
                 error={errors.moveOutDate}
                 fullWidth
               />
-            )}
-            {isResident && (
             <TextField
               label="Sugerowany login"
               value={form.login}
@@ -144,19 +102,9 @@ export default function RegisterUserModal() {
               error={errors.login}
               fullWidth
             />
-            )}
-            {!isResident && (
-            <TextField
-              label="Login"
-              value={form.login}
-              onChange={handleChange('login')}
-              error={errors.login}
-              fullWidth
-            />
-            )}
             <Box
               sx={{
-                gridColumn: isResident ? 'span 2' : 'span 1',
+                gridColumn: 'span 2',
                 display: 'flex',
                 justifyContent: 'center',
                 mt: 1,

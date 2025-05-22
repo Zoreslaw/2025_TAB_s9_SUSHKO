@@ -9,17 +9,17 @@ export interface User {
 }
 
 export enum UserStatus {
-    ACTIVE = 'ACTIVE',
-    INACTIVE = 'INACTIVE',
-    BLOCKED = 'BLOCKED',
+    ACTIVE = 'aktywny',
+    INACTIVE = 'nieaktywny',
+    BLOCKED = 'zablokowany',
 }
 
 
 export enum UserRoles {
-    ADMIN = 'ADMIN',
-    MANAGER = 'MANAGER',
-    RESIDENT = 'RESIDENT',
-    TENANT = 'TENANT',
+    ADMIN = 'admin',
+    MANAGER = 'menadżer',
+    RESIDENT = 'mieszkaniec',
+    TENANT = 'najemca',
 }
 
 
