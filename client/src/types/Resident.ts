@@ -6,5 +6,5 @@ export interface Resident extends User{
     address: string;
     apartmentNumber: string;
     moveInDate: Date;
-    moveOutDate: Date;
+    moveOutDate: Date | null;
 }

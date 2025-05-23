@@ -4,26 +4,28 @@ import {
   Button, Box, IconButton, MenuItem
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useEditUserForm } from '../../hooks/useEditUserForm';
+import { useEditResidentForm } from '../../hooks/useEditResidentForm';
+import { User, UserStatus } from '../../types/User';
+import { Resident } from '../../types/Resident';
 
-export default function EditUserModal({ open, onClose, userData }: {
+export default function EditResidentModal({ open, onClose, userData }: {
   open: boolean;
   onClose: () => void;
-  userData: any;
+  userData: Resident;
 }) {
   const { 
     form, 
     errors, 
-    isResident, 
+    handleClose,
     handleChange, 
     handleSubmit, 
-  } = useEditUserForm(userData, onClose);
+  } = useEditResidentForm(userData, onClose);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth={isResident ? 'sm' : 'xs'} fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth={'sm'} fullWidth>
       <DialogTitle sx={{ m: 0, p: 2, display: 'flex', justifyContent: 'space-between' }}>
-        Edytuj użytkownika
-        <IconButton onClick={onClose}>
+        Szczegóły użytkownika
+        <IconButton onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </DialogTitle>
@@ -33,7 +35,7 @@ export default function EditUserModal({ open, onClose, userData }: {
           sx={{
             mt: 2,
             display: 'grid',
-            gridTemplateColumns: isResident ? '1fr 1fr' : '1fr',
+            gridTemplateColumns: '1fr 1fr',
             gap: 2,
           }}
         >
@@ -44,7 +46,6 @@ export default function EditUserModal({ open, onClose, userData }: {
             error={errors.firstName}
             fullWidth
           />
-          {isResident && (
             <TextField
               label="Adres"
               value={form.address}
@@ -52,7 +53,6 @@ export default function EditUserModal({ open, onClose, userData }: {
               error={errors.address}
               fullWidth
             />
-          )}
           <TextField
             label="Nazwisko"
             value={form.lastName}
@@ -60,7 +60,6 @@ export default function EditUserModal({ open, onClose, userData }: {
             error={errors.lastName}
             fullWidth
           />
-          {isResident && (
             <TextField
               label="Numer mieszkania"
               type="number"
@@ -70,8 +69,6 @@ export default function EditUserModal({ open, onClose, userData }: {
               error={errors.apartmentNumber}
               fullWidth
             />
-          )}
-          {isResident && (
             <TextField
               label="Data wprowadzenia"
               type="date"
@@ -81,19 +78,18 @@ export default function EditUserModal({ open, onClose, userData }: {
               error={errors.moveInDate}
               fullWidth
             />
-          )}
           <TextField
             select
             label="Status"
-            value={form.status}
+            value={form.userStatus}
             onChange={handleChange('status')}
             error={errors.status}
             fullWidth
           >
-            <MenuItem value="Aktywny">Aktywny</MenuItem>
-            <MenuItem value="Nieaktywny">Nieaktywny</MenuItem>
+              <MenuItem value={UserStatus.ACTIVE}>Aktywny</MenuItem>
+              <MenuItem value={UserStatus.INACTIVE}>Nieaktywny</MenuItem>
+              <MenuItem value={UserStatus.BLOCKED}>Zablokowany</MenuItem>
           </TextField>
-          {isResident && (
             <TextField
               label="Data wyprowadzenia"
               type="date"
@@ -103,10 +99,9 @@ export default function EditUserModal({ open, onClose, userData }: {
               error={errors.moveOutDate}
               fullWidth
             />
-          )}
           <Box
             sx={{
-              gridColumn: isResident ? 'span 2' : 'span 1',
+              gridColumn: 'span 2',
               display: 'flex',
               justifyContent: 'center',
               mt: 1,

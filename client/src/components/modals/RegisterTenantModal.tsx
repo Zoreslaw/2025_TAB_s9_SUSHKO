@@ -3,9 +3,9 @@ import {
   Button, Box, IconButton
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useRegisterResidentForm } from '../../hooks/useRegisterResidentForm';
+import { useRegisterTenantForm } from '../../hooks/useRegisterTenantForm';
 
-export default function RegisterResidentModal({ open }: {
+export default function RegisterTenantModal({ open }: {
   open: boolean;
   onClose: () => void;
 }) {
@@ -15,14 +15,13 @@ export default function RegisterResidentModal({ open }: {
     handleChange,
     handleClose,
     handleSubmit,
-  } = useRegisterResidentForm();
+  } = useRegisterTenantForm();
 
   return (
     <>
-
-      <Dialog open={open} onClose={handleClose} maxWidth={'sm'} fullWidth>
+      <Dialog open={open} onClose={handleClose} maxWidth={'xs'} fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          Zarejestruj mieszkańca
+          Zarejestruj najemcę
           <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
             <CloseIcon />
           </IconButton>
@@ -51,28 +50,10 @@ export default function RegisterResidentModal({ open }: {
               fullWidth
             />
               <TextField
-                label="Adres"
-                value={form.address}
-                onChange={handleChange('address')}
-                error={errors.address}
-                fullWidth
-              />
-              <TextField
-                label="Numer mieszkania"
-                type="number"
-                inputProps={{ min: 0 }}
-                value={form.apartmentNumber}
-                onChange={handleChange('apartmentNumber')}
-                error={errors.apartmentNumber}
-                fullWidth
-              />
-              <TextField
-                label="Data wprowadzenia"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={form.moveInDate}
-                onChange={handleChange('moveInDate')}
-                error={errors.moveInDate}
+                label="Email"
+                value={form.email}
+                onChange={handleChange('email')}
+                error={errors.email}
                 fullWidth
               />
             <TextField
@@ -87,15 +68,6 @@ export default function RegisterResidentModal({ open }: {
               <MenuItem value="Nieaktywny">Nieaktywny</MenuItem>
               <MenuItem value="Zablokowany">Zablokowany</MenuItem>
             </TextField>
-              <TextField
-                label="Data wyprowadzenia"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={form.moveOutDate}
-                onChange={handleChange('moveOutDate')}
-                error={errors.moveOutDate}
-                fullWidth
-              />
             <TextField
               label="Sugerowany login"
               value={form.login}
@@ -105,7 +77,7 @@ export default function RegisterResidentModal({ open }: {
             />
             <Box
               sx={{
-                gridColumn: 'span 2',
+                gridColumn: 'span 1',
                 display: 'flex',
                 justifyContent: 'center',
                 mt: 1,

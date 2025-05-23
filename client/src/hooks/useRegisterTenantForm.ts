@@ -3,16 +3,12 @@ import { useState, useEffect } from 'react';
 const initialForm = {
   firstName: '',
   lastName: '',
-  address: null,
-  apartmentNumber: '',
-  moveInDate: '',
-  moveOutDate: '',
+  email: '',
   status: '',
   login: '',
-  role: '',
 };
 
-export function useRegisterResidentForm() {
+export function useRegisterTenantForm() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
@@ -26,7 +22,7 @@ export function useRegisterResidentForm() {
       const random = Math.floor(10000 + Math.random() * 90000);
       setForm(prev => ({ ...prev, login: `${initials}${random}` }));
     }
-    }, [form.firstName, form.lastName, form.role, loginManuallyChanged]);
+    }, [form.firstName, form.lastName, loginManuallyChanged]);
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -44,19 +40,15 @@ export function useRegisterResidentForm() {
   };
 
   // Name and address validation
-  const validateName = (name: string) =>
-    /^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż\s\-]+$/.test(name);
-  const validateAddress = (address: string) =>
-    /^[A-Za-z0-9\s\.\,\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/.test(address);
+  const validateName = (name: string) => /^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż\s\-]+$/.test(name);
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const isFormValid = () => {
     const newErrors: Record<string, boolean> = {};
    
     if (!form.firstName || !validateName(form.firstName)) newErrors.firstName = true;
     if (!form.lastName || !validateName(form.lastName)) newErrors.lastName = true;
-    if (!form.address || !validateAddress(form.address)) newErrors.address = true;
-    if (!form.apartmentNumber) newErrors.apartmentNumber = true;
-    if (!form.moveInDate) newErrors.moveInDate = true;
+    if (form.email && !validateEmail(form.email)) newErrors.email = true;  
     if (!form.status) newErrors.status = true;
     if (!form.login) newErrors.login = true;
 
@@ -72,9 +64,9 @@ export function useRegisterResidentForm() {
     window.location.reload()
   };
 
-
   const handleSubmit = () => {
     if (!isFormValid()) return;
+
 
     handleClose();
 

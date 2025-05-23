@@ -2,13 +2,35 @@ import React from 'react';
 import { DataGrid, GridColDef, GridRowId } from '@mui/x-data-grid';
 import { Button, Stack, Box, TextField } from '@mui/material';
 import Paper from '@mui/material/Paper';
-import RegisterResidentModal from '../../components/modals/RegisterResidentModal';
-import EditUserModal from '../../components/modals/EditUserModal';
 import { useUserTable } from '../../contexts/UserTableContext';
 import ExpandableAddUserButton from "../../components/buttons/ExpandableAddUserButton";
+import EditResidentModal from '../../components/modals/EditResidentModal';
+import EditManagerModal from '../../components/modals/EditManagerModal';
+import EditTenantModal from '../../components/modals/EditTenantModal';
+import { UserRoles } from '../../types/User';
+import { Resident } from '../../types/Resident';
+import { Tenant } from '../../types/Tenant';
 
-// Columns structure
-const columns: GridColDef[] = [
+const UserManagementPanel: React.FC = () => {
+
+  const {
+    search,
+    filteredRows,
+    handleSearchChange,
+  } = useUserTable();
+
+  const [selectedRowId, setSelectedRowId] = React.useState<GridRowId | null>(null);
+  const [editModalOpen, setEditModalOpen] = React.useState(false);
+
+  const handleOpenModal = (userId: GridRowId) => {
+    setSelectedRowId(userId);
+    setEditModalOpen(true);
+  };
+
+  const selectedUser = filteredRows.find(row => row.userId === selectedRowId);
+
+  // Columns structure
+  const columns: GridColDef[] = [
   { field: 'userId', headerName: 'ID', width: 70 },
   { field: 'login', headerName: 'Login', width: 250 },
   { field: 'role', headerName: 'Rodzaj konta', width: 250, },
@@ -23,25 +45,13 @@ const columns: GridColDef[] = [
         <Button
           variant="text"
           size="small"
-          //onClick={() => setDetailsUserId(params.row.userId)}
+          onClick={() => handleOpenModal(params.row.userId)}
         >
           Szczegóły
         </Button>
       ),
-  },
-];
-
-const UserManagementPanel: React.FC = () => {
-
-  const {
-    search,
-    filteredRows,
-    handleSearchChange,
-  } = useUserTable();
-
-  const [selectedRowId, setSelectedRowId] = React.useState<GridRowId | null>(null);
-  const [editModalOpen, setEditModalOpen] = React.useState(false);
-  const selectedUser = filteredRows.find(row => row.userId === selectedRowId) || null;
+    },
+  ];
 
   return (
     <Paper sx={{ height: 800, width: '98%', marginTop: '1px', boxShadow:0 }}>
@@ -57,29 +67,22 @@ const UserManagementPanel: React.FC = () => {
             onChange={(e) => handleSearchChange(e.target.value)}
           />
 
-          {/* Edit user button */}
-          {/* <Button
-            variant="outlined"
-            disabled={!selectedRowId}
-            onClick={() => setEditModalOpen(true)}
-            >
-            Edytuj
-          </Button> */}
-
           {/* Edit user modal open */}
-          {/* <EditUserModal
-            open={editModalOpen}
-            onClose={() => setEditModalOpen(false)}
-            userData={selectedUser}
-          /> */}
-
-          {/* Add new user button */}
-          {/* <RegisterResidentModal /> */}
+          {selectedUser && (() => {
+            switch (selectedUser.role) {
+              case UserRoles.RESIDENT:
+                return <EditResidentModal open={editModalOpen} onClose={() => setEditModalOpen(false)} userData={selectedUser as Resident} />;
+              case UserRoles.MANAGER:
+                return <EditManagerModal open={editModalOpen} onClose={() => setEditModalOpen(false)} userData={selectedUser} />;
+              case UserRoles.TENANT:
+                return <EditTenantModal open={editModalOpen} onClose={() => setEditModalOpen(false)} userData={selectedUser as Tenant} />;
+              default:
+                return null;
+            }
+          })()}
 
           {/* Add new user button */}
           <ExpandableAddUserButton />
-
-
 
         </Stack>
       </Box>

@@ -46,6 +46,7 @@ export default function RegisterManagerModal({ open }: {
             >
               <MenuItem value="Aktywny">Aktywny</MenuItem>
               <MenuItem value="Nieaktywny">Nieaktywny</MenuItem>
+              <MenuItem value="Zablokowany">Zablokowany</MenuItem>
             </TextField>
             <TextField
               label="Login"

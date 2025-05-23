@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { User } from "../types/User"
 
 const initialForm = {
   status: '',
@@ -34,28 +33,9 @@ export function useRegisterManagerForm() {
     window.location.reload()
   };
 
-  // Key for local storage
-  const STORAGE_KEY = 'users';
-
-  // Temporary solution
-  const addUserToLocalStorage = (newUser: User) => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const users = stored ? JSON.parse(stored) : [];
-
-  const newId = users.length > 0 ? Math.max(...users.map((u: any) => u.id)) + 1 : 1;
-  const parsedUser = {
-    ...newUser,
-    id: newId,
-  };
-
-  users.push(parsedUser);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  };
-
   const handleSubmit = () => {
     if (!isFormValid()) return;
 
-    //addUserToLocalStorage(form);
     handleClose();
 
     // Send data to DB
