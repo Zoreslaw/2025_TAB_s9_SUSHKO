@@ -63,8 +63,8 @@ const Header: React.FC = () => {
               to="/admin" 
               sx={{ 
                 mx: 1, 
-                color: location.pathname === '/admin' ? 'primary.main' : 'inherit',
-                fontWeight: location.pathname === '/admin' ? 'bold' : 'normal'
+                color: location.pathname.startsWith('/admin') ? 'primary.main' : 'inherit',
+                fontWeight: location.pathname.startsWith('/admin') ? 'bold' : 'normal'
               }}
             >
               ADMIN PANEL

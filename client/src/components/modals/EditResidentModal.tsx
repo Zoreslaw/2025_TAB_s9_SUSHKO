@@ -46,13 +46,6 @@ export default function EditResidentModal({ open, onClose, userData }: {
             error={errors.firstName}
             fullWidth
           />
-            <TextField
-              label="Adres"
-              value={form.address}
-              onChange={handleChange('address')}
-              error={errors.address}
-              fullWidth
-            />
           <TextField
             label="Nazwisko"
             value={form.lastName}
@@ -60,6 +53,13 @@ export default function EditResidentModal({ open, onClose, userData }: {
             error={errors.lastName}
             fullWidth
           />
+            <TextField
+              label="Adres"
+              value={form.address}
+              onChange={handleChange('address')}
+              error={errors.address}
+              fullWidth
+            />
             <TextField
               label="Numer mieszkania"
               type="number"
