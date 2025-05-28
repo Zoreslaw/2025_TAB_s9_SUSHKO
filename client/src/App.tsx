@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import './App.css';
 import Header from './components/header';
 import AdminPage from './pages/Adminpage';
+import ContactPage from './pages/ContactPage';
 // import AdminToggle from './components/AdminToggle';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -29,7 +30,7 @@ const AppContent: React.FC = () => {
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/kontakt" element={<KontaktPage />} />
+            <Route path="/kontakt" element={<ContactPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
           </Route>
           
