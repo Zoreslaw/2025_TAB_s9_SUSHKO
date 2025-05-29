@@ -123,7 +123,7 @@ export default function HomePage() {
         <Typography variant="body1" gutterBottom>Skontaktuj się z nami - chętnie pomożemy!</Typography>
         <Button
           component={Link}
-          to="/kontakt" // <-- zmień na swoją ścieżkę jeśli inna
+          to="/kontakt"
           variant="contained"
           size="large"
         >
