@@ -5,6 +5,7 @@ import Header from './components/header';
 import AdminPage from './pages/Adminpage';
 import ObjectPanel from './pages/admin/ObjectPanel';
 import UserManagementPanel from './pages/admin/UserManagementPanel';
+import HomePage from './pages/HomePage';
 // import AdminToggle from './components/AdminToggle';
 import LoginPage from './pages/LoginPage';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -12,7 +13,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { UserRoles } from './types/User';
 
 // Placeholder components
-const HomePage = () => <div>Home Page</div>;
+//const HomePage = () => <div>Home Page</div>;
 const KontaktPage = () => <div>Kontakt Page</div>;
 const DashboardPage = () => <div>Dashboard Page</div>;
 const UnauthorizedPage = () => <div>You don't have permission to access this page</div>;
