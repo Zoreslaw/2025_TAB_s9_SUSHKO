@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import './App.css';
 import Header from './components/header';
@@ -7,6 +7,7 @@ import ObjectPanel from './pages/admin/ObjectPanel';
 import UserManagementPanel from './pages/admin/UserManagementPanel';
 // import AdminToggle from './components/AdminToggle';
 import LoginPage from './pages/LoginPage';
+import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { UserRoles } from './types/User';
@@ -14,7 +15,6 @@ import { UserRoles } from './types/User';
 // Placeholder components
 const HomePage = () => <div>Home Page</div>;
 const KontaktPage = () => <div>Kontakt Page</div>;
-const DashboardPage = () => <div>Dashboard Page</div>;
 const UnauthorizedPage = () => <div>You don't have permission to access this page</div>;
 
 const AppContent: React.FC = () => {  
@@ -32,7 +32,7 @@ const AppContent: React.FC = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/kontakt" element={<KontaktPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Route>
           
           {/* Admin routes */}

@@ -1,28 +1,36 @@
 import { useState, useMemo, useEffect } from 'react';
+import { apiService, convertApiUserToUser } from '../services/api';
+import { User } from '../types/User';
 
 export type UserRow = {
   id: number;
-  firstName: string;
-  lastName: string;
+  login: string;
   role: string;
   status: string;
   address?: string | null;
-  apartmentNumber?: number | null;
+  apartmentNumber?: string | null;
   moveInDate?: Date | null;
   moveOutDate?: Date | null;
+  avatarUrl?: string;
 };
 
-// Random mock data
-const mockRows: UserRow[] = [
-  { id: 1, firstName: 'Jon', lastName: 'Snow', role: 'Administrator', status: 'Aktywny', address: null, apartmentNumber: null, moveInDate: null, moveOutDate: null },
-  { id: 2, firstName: 'Adam', lastName: 'Kowalski', role: 'Menadżer', status: 'Aktywny', address: null, apartmentNumber: null, moveInDate: null, moveOutDate: null },
-  { id: 3, firstName: 'Anna', lastName: 'Nowak', role: 'Mieszkaniec', status: 'Nieaktywny', address: 'Jasnogórska 4', apartmentNumber: 2, moveInDate: new Date('2020-08-01'), moveOutDate: new Date('2024-02-22') },
-  { id: 4, firstName: 'Marek', lastName: 'Szymański', role: 'Menadżer', status: 'Aktywny', address: null, apartmentNumber: null, moveInDate: null, moveOutDate: null },
-  { id: 5, firstName: 'Michał', lastName: 'Wiśniewski', role: 'Najemca', status: 'Aktywny', address: 'Wielka 28', apartmentNumber: 5, moveInDate: new Date('2023-01-10') },
-  { id: 6, firstName: 'Karolina', lastName: 'Zieliński', role: 'Menadżer', status: 'Aktywny', address: null, apartmentNumber: null, moveInDate: null, moveOutDate: null },
-  { id: 7, firstName: 'Paweł', lastName: 'Mazur', role: 'Mieszkaniec', status: 'Nieaktywny', address: 'Zielona 9', apartmentNumber: 12, moveInDate: new Date('2018-03-10'), moveOutDate: new Date('2022-07-30') },
-  { id: 8, firstName: 'Tomasz', lastName: 'Jankowski', role: 'Najemca', status: 'Aktywny', address: 'Lwowska 13', apartmentNumber: 9, moveInDate: new Date('2022-07-15'), moveOutDate: new Date('2031-09-20') },
-];
+// Convert API user data to UserRow format
+const convertUserToRow = (apiUser: any): UserRow => {
+  // Get the first resident record if it exists
+  const resident = apiUser.residents && apiUser.residents.length > 0 ? apiUser.residents[0] : null;
+  
+  return {
+    id: apiUser.userId,
+    login: apiUser.login,
+    role: apiUser.role || 'resident',
+    status: apiUser.userStatus || 'active',
+    address: resident?.buildingAddress || null,
+    apartmentNumber: resident?.apartmentNumber || null,
+    moveInDate: resident?.moveinDate ? new Date(resident.moveinDate) : null,
+    moveOutDate: resident?.moveoutDate ? new Date(resident.moveoutDate) : null,
+    avatarUrl: apiUser.avatarUrl,
+  };
+};
 
 // Key for local storage
 const STORAGE_KEY = 'users';
@@ -30,35 +38,33 @@ const STORAGE_KEY = 'users';
 export function useUserTable() {
   const [search, setSearch] = useState('');
   const [rows, setRows] = useState<UserRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // localStorage data initialization
+  // Fetch data from API
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    const fetchUsers = async () => {
       try {
-        const parsed = JSON.parse(stored, (key, value) => {
-        // Convert string to date
-        if (key.toLowerCase().includes('date') && value) return new Date(value);
-        return value;
-      });
-      setRows(parsed);
-      } catch {
-        console.error('localStorage data parse error');
-        setRows(mockRows);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(mockRows));
+        setLoading(true);
+        setError(null);
+        const apiUsers = await apiService.getUsers();
+        
+        // Convert API users to UserRow format
+        const userRows = apiUsers.map(apiUser => {
+          return convertUserToRow(apiUser);
+        });
+        
+        setRows(userRows);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch users');
+      } finally {
+        setLoading(false);
       }
-      
-    } else {
-      setRows(mockRows);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(mockRows));
-    }
+    };
+
+    fetchUsers();
   }, []);
-
-
-  // useEffect(() => {
-  //   // Get data from DB here
-  //   setRows(mockRows);
-  // }, []);
 
   const filteredRows = useMemo(() => {
     const lowerSearch = search.toLowerCase();
@@ -77,5 +83,7 @@ export function useUserTable() {
     search,
     filteredRows,
     handleSearchChange,
+    loading,
+    error,
   };
 }

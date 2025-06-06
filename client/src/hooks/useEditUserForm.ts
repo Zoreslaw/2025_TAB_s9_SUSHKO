@@ -1,110 +1,101 @@
 // hooks/useEditUserForm.ts
 import { useEffect, useState } from 'react';
+import { apiService } from '../services/api';
 
 export interface EditUserFormData {
-  firstName: string;
-  lastName: string;
-  address: string;
-  apartmentNumber: number;
-  moveInDate: string;
-  moveOutDate: string;
-  status: string;
+  login: string;
+  avatarUrl: string;
   role: string;
+  userStatus: string;
 }
 
 export function useEditUserForm(userData: any, onClose: () => void) {
   const [form, setForm] = useState<EditUserFormData>({
-    firstName: '',
-    lastName: '',
-    address: '',
-    apartmentNumber: 0,
-    moveInDate: '',
-    moveOutDate: '',
-    status: '',
+    login: '',
+    avatarUrl: '',
     role: '',
+    userStatus: '',
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
-
-  const isResidentRole = (role: string) => role === 'Mieszkaniec' || role === 'Najemca';
-  const isResident = isResidentRole(form.role);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (userData) {
       setForm({
-        firstName: userData.firstName || '',
-        lastName: userData.lastName || '',
-        address: userData.address || null,
-        apartmentNumber: userData.apartmentNumber || null,
-        moveInDate: userData.moveInDate ? new Date(userData.moveInDate).toISOString().split('T')[0] : '',
-        moveOutDate: userData.moveOutDate ? new Date(userData.moveOutDate).toISOString().split('T')[0] : '',
-        status: userData.status || '',
-        role: userData.role || 'Mieszkaniec',
+        login: userData.login || '',
+        avatarUrl: userData.avatarUrl || '',
+        role: userData.role || 'resident',
+        userStatus: userData.status || 'active',
       });
     }
   }, [userData]);
 
   const handleChange = (field: keyof EditUserFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = field === 'apartmentNumber'
-      ? Math.max(0, parseInt(e.target.value) || 0)
-      : e.target.value;
-
+    const value = e.target.value;
     setForm(prev => ({ ...prev, [field]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: false }));
+    }
+  };
+
+  const handleRoleChange = (role: string) => {
+    setForm(prev => ({ ...prev, role }));
+  };
+
+  const handleStatusChange = (status: string) => {
+    setForm(prev => ({ ...prev, userStatus: status }));
   };
 
   const handleClose = () => {
     setErrors({});
+    setLoading(false);
     onClose();
-    window.location.reload()
   };
 
-  const handleSubmit = () => {
-    if (isFormValid()) {
+  const handleSubmit = async () => {
+    if (!isFormValid()) return;
+
+    try {
+      setLoading(true);
+      await apiService.updateUser(userData.id, {
+        login: form.login,
+        avatarUrl: form.avatarUrl || undefined,
+        role: form.role,
+        userStatus: form.userStatus,
+      });
       
-      // Temporary solution
-      const updatedUser = {
-      ...form,
-      id: userData.id, 
-      apartmentNumber: form.apartmentNumber ? Number(form.apartmentNumber) : null,
-      moveInDate: form.moveInDate ? new Date(form.moveInDate) : null,
-      moveOutDate: form.moveOutDate ? new Date(form.moveOutDate) : null,
-      };
-      
-      const existingUsersJSON = localStorage.getItem('users');
-      const existingUsers = existingUsersJSON ? JSON.parse(existingUsersJSON) : [];
-
-      const updatedUsers = existingUsers.map((user: any) =>
-      user.id === updatedUser.id ? updatedUser : user
-      );
-
-      localStorage.setItem('users', JSON.stringify(updatedUsers));
-
       handleClose();
-
-      // Send data to DB
+      // Optionally trigger a refresh of the user list
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to update user:', error);
+      // Handle error (could set an error state to show to user)
+    } finally {
+      setLoading(false);
     }
   };
-
-  // Name and address validation
-  const validateName = (name: string) => /^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż\s\-]+$/.test(name);
-  const validateAddress = (address: string) =>
-    /^[A-Za-z0-9\s\.\,\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/.test(address);
 
   const isFormValid = () => {
     const newErrors: Record<string, boolean> = {};
 
-    if (!form.firstName || !validateName(form.firstName)) newErrors.firstName = true;
-    if (!form.lastName || !validateName(form.lastName)) newErrors.lastName = true;
-    if (isResident) {
-      if (!form.address || !validateAddress(form.address)) newErrors.address = true;
-      if (!form.apartmentNumber) newErrors.apartmentNumber = true;
-      if (!form.moveInDate) newErrors.moveInDate = true;
-    }
-    if (!form.status) newErrors.status = true;
+    if (!form.login.trim()) newErrors.login = true;
+    if (!form.role.trim()) newErrors.role = true;
+    if (!form.userStatus.trim()) newErrors.userStatus = true;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  return { form, errors, isResident, handleChange, handleSubmit };
+  return { 
+    form, 
+    errors, 
+    loading,
+    handleChange, 
+    handleRoleChange,
+    handleStatusChange,
+    handleSubmit 
+  };
 }
