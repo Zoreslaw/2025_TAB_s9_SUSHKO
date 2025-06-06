@@ -6,6 +6,8 @@ import AdminPage from './pages/Adminpage';
 import ObjectPanel from './pages/admin/ObjectPanel';
 import UserManagementPanel from './pages/admin/UserManagementPanel';
 import HomePage from './pages/HomePage';
+import ContactPage from './pages/ContactPage';
+
 // import AdminToggle from './components/AdminToggle';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
@@ -32,7 +34,7 @@ const AppContent: React.FC = () => {
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/kontakt" element={<KontaktPage />} />
+            <Route path="/kontakt" element={<ContactPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
           
