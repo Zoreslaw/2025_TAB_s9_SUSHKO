@@ -1,0 +1,26 @@
+### Test Login API
+POST http://localhost:5213/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "admin123"
+}
+
+### Test with operator credentials
+POST http://localhost:5213/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "operator",
+  "password": "operator123"
+}
+
+### Test with resident credentials
+POST http://localhost:5213/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "jan.kowalski",
+  "password": "password123"
+} 

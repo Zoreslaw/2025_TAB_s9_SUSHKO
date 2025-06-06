@@ -5,3 +5,4 @@ export interface Apartment {
   tenantId: string;
   date: string;
 }
+
