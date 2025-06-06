@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, UserRoles, UserStatus } from '../types/User';
+import { apiService, convertApiUserToUser, LoginRequest } from '../services/api';
 
 // Auth types
 export interface AuthState {
@@ -16,61 +17,14 @@ export interface LoginCredentials {
 
 export interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   clearError: () => void;
 }
 
 // Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock data for users
-const MOCK_USERS: User[] = [
-  {
-    userId: '1',
-    login: 'admin',
-    password: 'admin123',
-    avatarUrl: '',
-    role: UserRoles.ADMIN,
-    userStatus: UserStatus.ACTIVE,
-    userCreationDate: new Date('2023-01-01'),
-  },
-  {
-    userId: '2',
-    login: 'manager',
-    password: 'manager123',
-    avatarUrl: '',
-    role: UserRoles.MANAGER,
-    userStatus: UserStatus.ACTIVE,
-    userCreationDate: new Date('2023-02-15'),
-  },
-  {
-    userId: '3',
-    login: 'resident',
-    password: 'resident123',
-    avatarUrl: '',
-    role: UserRoles.RESIDENT,
-    userStatus: UserStatus.ACTIVE,
-    userCreationDate: new Date('2023-03-10'),
-  },
-  {
-    userId: '4',
-    login: 'tenant',
-    password: 'tenant123',
-    avatarUrl: '',
-    role: UserRoles.TENANT,
-    userStatus: UserStatus.ACTIVE,
-    userCreationDate: new Date('2023-04-20'),
-  },
-  {
-    userId: '5',
-    login: 'blocked',
-    password: 'blocked123',
-    avatarUrl: '',
-    role: UserRoles.RESIDENT,
-    userStatus: UserStatus.BLOCKED,
-    userCreationDate: new Date('2023-05-05'),
-  },
-];
+// Mock data removed - now using real API authentication
 
 // Auth Provider Props
 interface AuthProviderProps {
@@ -119,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuthStatus();
   }, []);
 
-  // Login function - will be replaced with real API call
+  // Login function - using real API
   const login = async (credentials: LoginCredentials) => {
     setAuthState(prev => ({
       ...prev,
@@ -128,31 +82,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }));
 
     try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Call real API
+      const loginRequest: LoginRequest = {
+        login: credentials.login,
+        password: credentials.password,
+      };
       
-      // Find user in mock data
-      const user = MOCK_USERS.find(
-        u => u.login === credentials.login && u.password === credentials.password
-      );
+      const loginResponse = await apiService.login(loginRequest);
       
-      if (!user) {
-        throw new Error('Invalid credentials');
-      }
+      // Convert API response to frontend User type
+      const user = convertApiUserToUser(loginResponse);
       
-      if (user.userStatus !== UserStatus.ACTIVE) {
-        throw new Error(`Account is ${user.userStatus.toLowerCase()}`);
-      }
-      
-      // Remove password from user object before storing
-      const { password, ...secureUser } = user;
-      const userToStore = { ...secureUser, password: '' };
-      
-      // Store in localStorage
-      localStorage.setItem('user', JSON.stringify(userToStore));
+      // Store in localStorage (without password)
+      localStorage.setItem('user', JSON.stringify(user));
       
       setAuthState({
-        user: userToStore as User,
+        user,
         isAuthenticated: true,
         isLoading: false,
         error: null,
@@ -161,20 +106,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
-        error: error instanceof Error ? error.message : 'An unknown error occurred',
+        error: error instanceof Error ? error.message : 'Login failed. Please check your credentials.',
       }));
     }
   };
 
   // Logout function
-  const logout = () => {
-    localStorage.removeItem('user');
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false,
-      error: null,
-    });
+  const logout = async () => {
+    try {
+      // Call API logout (optional, for server-side cleanup)
+      await apiService.logout();
+    } catch (error) {
+      // Continue with logout even if API call fails
+      console.warn('Logout API call failed:', error);
+    } finally {
+      // Always clear local state
+      localStorage.removeItem('user');
+      setAuthState({
+        user: null,
+        isAuthenticated: false,
+        isLoading: false,
+        error: null,
+      });
+    }
   };
 
   // Clear error
