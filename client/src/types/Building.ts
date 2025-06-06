@@ -1,4 +1,6 @@
 export interface Building {
-    buildingId: string;
-    address: string;
-} 
+  id: number;
+  address: string;
+  flats: number;
+}
+

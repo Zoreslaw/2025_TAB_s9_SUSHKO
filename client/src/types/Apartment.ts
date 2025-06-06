@@ -1,5 +1,8 @@
 export interface Apartment {
-    apartmentId: string;
-    buildingId: string;
-    apartmentNumber: string;
-} 
+  id: number;
+  number: string;
+  tenant: string;
+  tenantId: string;
+  date: string;
+}
+
