@@ -14,3 +14,4 @@ export interface Apartment {
   moveInDate: string;
   moveOutDate?: string;
 }
+

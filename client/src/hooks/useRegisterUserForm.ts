@@ -1,127 +1,91 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { apiService } from '../services/api';
 
 const initialForm = {
-  firstName: '',
-  lastName: '',
-  address: null,
-  apartmentNumber: '',
-  moveInDate: '',
-  moveOutDate: '',
-  status: '',
   login: '',
-  role: 'Mieszkaniec',
+  password: '',
+  avatarUrl: '',
+  role: 'resident',
+  status: 'active',
 };
-
-const isResidentRole = (role: string) => role === 'Mieszkaniec' || role === 'Najemca';
 
 export function useRegisterUserForm() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
-  const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
-
-  const isResident = isResidentRole(form.role);
-
-  // Auto-generate login
-  useEffect(() => {
-    const { firstName, lastName } = form;
-    if (firstName && lastName && !loginManuallyChanged) {
-      const initials = firstName[0]?.toLowerCase() + lastName[0]?.toLowerCase();
-      const random = Math.floor(10000 + Math.random() * 90000);
-      setForm(prev => ({ ...prev, login: `${initials}${random}` }));
-    }
-  }, [form.firstName, form.lastName, form.role, loginManuallyChanged]);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-
-    if (field === 'apartmentNumber' && value && parseInt(value) < 0) return;
-
     setForm(prev => ({ ...prev, [field]: value }));
-
-    if (['firstName', 'lastName'].includes(field)) {
-      setLoginManuallyChanged(false);
-    }
-    if (field === 'login') {
-      setLoginManuallyChanged(true);
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: false }));
     }
   };
 
   const handleRoleChange = (role: string) => {
-    setForm(prev => ({ ...prev, role, login: '' }));
-    setLoginManuallyChanged(false);
+    setForm(prev => ({ ...prev, role }));
   };
 
-  // Name and address validation
-  const validateName = (name: string) =>
-    /^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż\s\-]+$/.test(name);
-  const validateAddress = (address: string) =>
-    /^[A-Za-z0-9\s\.\,\-ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+$/.test(address);
+  const handleStatusChange = (status: string) => {
+    setForm(prev => ({ ...prev, status }));
+  };
 
   const isFormValid = () => {
     const newErrors: Record<string, boolean> = {};
 
-    if (!form.firstName || !validateName(form.firstName)) newErrors.firstName = true;
-    if (!form.lastName || !validateName(form.lastName)) newErrors.lastName = true;
-    if (isResident) {
-      if (!form.address || !validateAddress(form.address)) newErrors.address = true;
-      if (!form.apartmentNumber) newErrors.apartmentNumber = true;
-      if (!form.moveInDate) newErrors.moveInDate = true;
-    }
-    if (!form.status) newErrors.status = true;
-    if (!form.login) newErrors.login = true;
+    if (!form.login.trim()) newErrors.login = true;
+    if (!form.password.trim()) newErrors.password = true;
+    if (!form.role.trim()) newErrors.role = true;
+    if (!form.status.trim()) newErrors.status = true;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleOpen = () => setOpen(true);
+  
   const handleClose = () => {
     setOpen(false);
     setForm(initialForm);
-    setLoginManuallyChanged(false);
     setErrors({});
-    window.location.reload()
+    setLoading(false);
   };
 
-  
-  // Key for local storage
-  const STORAGE_KEY = 'users';
-
-  // Temporary solution
-  const addUserToLocalStorage = (newUser: any) => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  const users = stored ? JSON.parse(stored) : [];
-
-  const newId = users.length > 0 ? Math.max(...users.map((u: any) => u.id)) + 1 : 1;
-  const parsedUser = {
-    ...newUser,
-    id: newId,
-    apartmentNumber: newUser.apartmentNumber ? parseInt(newUser.apartmentNumber, 10) : null,
-    moveInDate: newUser.moveInDate ? new Date(newUser.moveInDate) : null,
-    moveOutDate: newUser.moveOutDate ? new Date(newUser.moveOutDate) : null,
-  };
-
-  users.push(parsedUser);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  };
-
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isFormValid()) return;
 
-    addUserToLocalStorage(form);
-    handleClose();
-
-    // Send data to DB
+    try {
+      setLoading(true);
+      await apiService.createUser({
+        login: form.login,
+        password: form.password,
+        avatarUrl: form.avatarUrl || undefined,
+        role: form.role,
+        userStatus: form.status,
+      });
+      
+      handleClose();
+      // Optionally trigger a refresh of the user list
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to create user:', error);
+      // Handle error (could set an error state to show to user)
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {
     open,
     form,
     errors,
-    isResident,
+    loading,
     handleChange,
     handleRoleChange,
+    handleStatusChange,
     handleOpen,
     handleClose,
     handleSubmit,

@@ -3,3 +3,4 @@ export interface Building {
   address: string;
   flats: number;
 }
+

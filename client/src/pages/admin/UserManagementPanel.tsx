@@ -14,15 +14,47 @@ const renderValueOrDash = (params: GridRenderCellParams) => params.value ?? '-';
 const renderDateOrDash = (params: GridRenderCellParams) =>
   params.value ? new Date(params.value).toLocaleDateString() : '-';
 
+// Format role display
+const renderRole = (params: GridRenderCellParams) => {
+  const role = params.value;
+  switch (role?.toLowerCase()) {
+    case 'administrator':
+    case 'admin':
+      return 'Administrator';
+    case 'operator':
+      return 'Operator';
+    case 'resident':
+      return 'Mieszkaniec';
+    case 'tenant':
+      return 'Najemca';
+    default:
+      return role || '-';
+  }
+};
+
+// Format status display
+const renderStatus = (params: GridRenderCellParams) => {
+  const status = params.value;
+  switch (status?.toLowerCase()) {
+    case 'active':
+      return 'Aktywny';
+    case 'inactive':
+      return 'Nieaktywny';
+    case 'blocked':
+      return 'Zablokowany';
+    default:
+      return status || '-';
+  }
+};
+
 // Columns structure
 const columns: GridColDef[] = [
   { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'firstName', headerName: 'Imię', width: 130 },
-  { field: 'lastName', headerName: 'Nazwisko', width: 130 },
-  { field: 'role', headerName: 'Rodzaj konta', width: 130, },
-  { field: 'status', headerName: 'Status', width: 130, },
-  { field: 'address', headerName: 'Adres', width: 160, renderCell: renderValueOrDash },
-  { field: 'apartmentNumber', headerName: 'Numer mieszkania', type: 'number', align: 'left', width: 140, renderCell: renderValueOrDash },
+  { field: 'login', headerName: 'Login', width: 150 },
+  { field: 'role', headerName: 'Rodzaj konta', width: 130, renderCell: renderRole },
+  { field: 'status', headerName: 'Status', width: 130, renderCell: renderStatus },
+  { field: 'address', headerName: 'Adres', width: 200, renderCell: renderValueOrDash },
+  { field: 'apartmentNumber', headerName: 'Numer mieszkania', width: 140, renderCell: renderValueOrDash },
   { field: 'moveInDate', headerName: 'Data wprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
   { field: 'moveOutDate', headerName: 'Data wyprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
 ];
