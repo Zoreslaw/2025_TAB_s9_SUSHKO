@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box, Button, TextField, Autocomplete
 } from '@mui/material';
@@ -25,7 +25,14 @@ const ObjectPanel: React.FC = () => {
   const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
 
   const [buildingData, setBuildingData] = useState<Building>({ address: '', flats: 0, id: 0 });
-  const [apartmentData, setApartmentData] = useState<Apartment>({ number: '', tenant: '', tenantId: '', date: '', id: 0 });
+  const [apartmentData, setApartmentData] = useState<Apartment>({
+    id: 0,
+    buildingId: selectedBuilding ? selectedBuilding.id : 0,
+    number: '',
+    tenants: [],
+    moveInDate: '',
+    moveOutDate: ''
+  });
 
   const [pageBuilding, setPageBuilding] = useState(1);
   const [rowsPerPageBuilding, setRowsPerPageBuilding] = useState(5);
@@ -33,10 +40,17 @@ const ObjectPanel: React.FC = () => {
   const [rowsPerPageApartment, setRowsPerPageApartment] = useState(5);
 
   // Filter apartments by selected building if buildingId exists
-  // If Apartment does not have buildingId, skip this block or add buildingId to Apartment type
   const filteredApartments = selectedBuilding
-    ? apartments.filter((a: any) => a.buildingId === selectedBuilding.id)
+    ? apartments.filter((a: Apartment) => a.buildingId === selectedBuilding.id)
     : apartments;
+
+    const buildingsWithFlatCount = useMemo(() => {
+    return buildings.map(b => ({
+      ...b,
+      flats: apartments.filter(a => a.buildingId === b.id).length
+    }));
+  }, [buildings, apartments]);
+
 
   const handleOpenBuildingModal = (mode: 'add' | 'edit', building?: Building) => {
     setMode(mode);
@@ -48,7 +62,14 @@ const ObjectPanel: React.FC = () => {
   const handleOpenApartmentModal = (mode: 'add' | 'edit', apartment?: Apartment) => {
     setMode(mode);
     setOpenApartmentModal(true);
-    setApartmentData(apartment ?? { number: '', tenant: '', tenantId: '', date: '', id: 0 });
+    setApartmentData(apartment ?? {
+      id: 0,
+      buildingId: selectedBuilding ? selectedBuilding.id : 0,
+      number: '',
+      tenants: [],
+      moveInDate: '',
+      moveOutDate: ''
+    });
     setSelectedApartment(apartment ?? null);
   };
 
@@ -60,6 +81,15 @@ const ObjectPanel: React.FC = () => {
   };
 
   const handleSaveApartment = () => {
+    // Validate moveOutDate is after moveInDate if both are set
+    if (
+      apartmentData.moveOutDate &&
+      apartmentData.moveInDate &&
+      apartmentData.moveOutDate <= apartmentData.moveInDate
+    ) {
+      alert('Data wyprowadzenia musi być późniejsza niż data wprowadzenia.');
+      return;
+    }
     if (mode === 'edit' && selectedApartment) updateApartment(selectedApartment.id, apartmentData);
     else addApartment(apartmentData);
     setOpenApartmentModal(false);
@@ -69,8 +99,17 @@ const ObjectPanel: React.FC = () => {
   const handleInlineEditBuilding = (id: number, key: keyof Building, value: any) =>
     updateBuilding(id, { [key]: value });
 
-  const handleInlineEditApartment = (id: number, key: keyof Apartment, value: any) =>
+  const handleInlineEditApartment = (id: number, key: keyof Apartment, value: any) => {
+    // Validate moveOutDate is after moveInDate if editing moveOutDate
+    if (key === 'moveOutDate') {
+      const apt = apartments.find(a => a.id === id);
+      if (apt && apt.moveInDate && value && value <= apt.moveInDate) {
+        alert('Data wyprowadzenia musi być późniejsza niż data wprowadzenia.');
+        return;
+      }
+    }
     updateApartment(id, { [key]: value });
+  };
 
   const buildingColumns: ColumnConfig<Building>[] = [
     { key: 'address', label: 'Adres' },
@@ -79,9 +118,9 @@ const ObjectPanel: React.FC = () => {
 
   const apartmentColumns: ColumnConfig<Apartment>[] = [
     { key: 'number', label: 'Numer mieszkania' },
-    { key: 'tenant', label: 'Najemca' },
-    { key: 'tenantId', label: 'ID Najemcy' },
-    { key: 'date', label: 'Data', type: 'date' }
+    { key: 'tenants', label: 'Najemcy' },
+    { key: 'moveInDate', label: 'Data wprowadzenia', type: 'date' },
+    { key: 'moveOutDate', label: 'Data wyprowadzenia', type: 'date' }
   ];
 
   return (
@@ -93,14 +132,14 @@ const ObjectPanel: React.FC = () => {
           getOptionLabel={(b) => b.address}
           onChange={(_, val) => setSelectedBuilding(val)}
           value={selectedBuilding}
-          renderInput={(params) => <TextField {...params} label="Adres" variant="outlined" />}
+          renderInput={(params) => <TextField {...params} label="Adres" variant="outlined" sx={{ width: 350 }} />}
         />
         <Button variant="outlined" disabled={!selectedBuilding} onClick={() => handleOpenBuildingModal('edit', selectedBuilding ?? undefined)}>Edytuj</Button>
         <Button variant="contained" onClick={() => handleOpenBuildingModal('add')}>Dodaj</Button>
       </Box>
 
       <EditableTable
-        data={buildings}
+        data={buildingsWithFlatCount}
         columns={buildingColumns}
         selected={selectedBuilding}
         onSelect={setSelectedBuilding}
@@ -133,7 +172,7 @@ const ObjectPanel: React.FC = () => {
           getOptionLabel={(a) => a.number}
           onChange={(_, val) => setSelectedApartment(val)}
           value={selectedApartment}
-          renderInput={(params) => <TextField {...params} label="Numer" variant="outlined" />}
+          renderInput={(params) => <TextField {...params} label="Numer" variant="outlined" sx={{ width: 350 }} />}
         />
         <Button variant="outlined" disabled={!selectedApartment} onClick={() => handleOpenApartmentModal('edit', selectedApartment ?? undefined)}>Edytuj</Button>
         <Button variant="contained" onClick={() => handleOpenApartmentModal('add')}>Dodaj</Button>
