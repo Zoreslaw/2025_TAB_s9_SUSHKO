@@ -5,6 +5,7 @@ import HandymanIcon from '@mui/icons-material/Handyman';
 import PeopleIcon from '@mui/icons-material/People';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 export default function HomePage() {
   return (
@@ -127,9 +128,13 @@ export default function HomePage() {
           variant="contained"
           size="large"
         >
-          Kontant
+          Kontakt
         </Button>
       </Box>
+
+      {/* FOOTER */}
+      <Footer />
+
     </div>
   );
 }

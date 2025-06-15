@@ -16,8 +16,6 @@ import { AuthProvider } from './contexts/AuthContext';
 import { UserRoles } from './types/User';
 
 // Placeholder components
-//const HomePage = () => <div>Home Page</div>;
-const KontaktPage = () => <div>Kontakt Page</div>;
 const UnauthorizedPage = () => <div>You don't have permission to access this page</div>;
 
 const AppContent: React.FC = () => {  
@@ -28,13 +26,13 @@ const AppContent: React.FC = () => {
       <div className="app-container">
         <Routes>
           {/* Public routes */}
+          <Route path="/" element={<HomePage />} /> {/* home page */}
+          <Route path="/kontakt" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
           
           {/* Protected routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/kontakt" element={<ContactPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Route>
           

@@ -5,7 +5,7 @@ import {
   Typography, 
   Grid, 
   Paper, 
-  Link 
+  Link
 } from '@mui/material';
 import MailIcon from '@mui/icons-material/Mail';
 import MapIcon from '@mui/icons-material/Map';
@@ -13,6 +13,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import Footer from '../components/Footer';
 
 const ContactPage = () => {
   const infoItems = [
@@ -39,6 +40,7 @@ const ContactPage = () => {
   ];
 
   return (
+    <div>
     <Container maxWidth="md" sx={{ py: 6 }}>
       <Typography variant="h4" align="center" gutterBottom fontWeight={700}>
         Kontakt
@@ -100,10 +102,16 @@ const ContactPage = () => {
             allowFullScreen
             ></iframe>
         </Box>
+    </Box>
 
-        </Box>
+  </Container>
 
-    </Container>
+
+    {/* FOOTER */}
+    <Footer />
+
+
+  </div>
   );
 };
 
