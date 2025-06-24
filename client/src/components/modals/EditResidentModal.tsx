@@ -8,6 +8,20 @@ import { useEditResidentForm } from '../../hooks/useEditResidentForm';
 import { User, UserStatus } from '../../types/User';
 import { Resident } from '../../types/Resident';
 
+// Helper to format date for input type="date"
+function formatDateForInput(date: any) {
+  if (!date) return '';
+  if (typeof date === 'string') date = new Date(date);
+  if (isNaN(date.getTime())) return '';
+  return date.toISOString().split('T')[0];
+}
+
+const statusOptions = [
+  { value: 'active', label: 'Aktywny' },
+  { value: 'inactive', label: 'Nieaktywny' },
+  { value: 'blocked', label: 'Zablokowany' },
+];
+
 export default function EditResidentModal({ open, onClose, userData }: {
   open: boolean;
   onClose: () => void;
@@ -40,44 +54,29 @@ export default function EditResidentModal({ open, onClose, userData }: {
           }}
         >
           <TextField
-            label="Imię"
-            value={form.firstName}
-            onChange={handleChange('firstName')}
-            error={errors.firstName}
+            label="Adres"
+            value={form.address}
+            onChange={handleChange('address')}
+            error={errors.address}
             fullWidth
           />
           <TextField
-            label="Nazwisko"
-            value={form.lastName}
-            onChange={handleChange('lastName')}
-            error={errors.lastName}
+            label="Numer mieszkania"
+            type="text"
+            value={form.apartmentNumber}
+            onChange={handleChange('apartmentNumber')}
+            error={errors.apartmentNumber}
             fullWidth
           />
-            <TextField
-              label="Adres"
-              value={form.address}
-              onChange={handleChange('address')}
-              error={errors.address}
-              fullWidth
-            />
-            <TextField
-              label="Numer mieszkania"
-              type="number"
-              inputProps={{ min: 0 }}
-              value={form.apartmentNumber}
-              onChange={handleChange('apartmentNumber')}
-              error={errors.apartmentNumber}
-              fullWidth
-            />
-            <TextField
-              label="Data wprowadzenia"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={form.moveInDate}
-              onChange={handleChange('moveInDate')}
-              error={errors.moveInDate}
-              fullWidth
-            />
+          <TextField
+            label="Data wprowadzenia"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={formatDateForInput(form.moveInDate)}
+            onChange={handleChange('moveInDate')}
+            error={errors.moveInDate}
+            fullWidth
+          />
           <TextField
             select
             label="Status"
@@ -86,19 +85,19 @@ export default function EditResidentModal({ open, onClose, userData }: {
             error={errors.status}
             fullWidth
           >
-              <MenuItem value={UserStatus.ACTIVE}>Aktywny</MenuItem>
-              <MenuItem value={UserStatus.INACTIVE}>Nieaktywny</MenuItem>
-              <MenuItem value={UserStatus.BLOCKED}>Zablokowany</MenuItem>
+            {statusOptions.map(opt => (
+              <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+            ))}
           </TextField>
-            <TextField
-              label="Data wyprowadzenia"
-              type="date"
-              InputLabelProps={{ shrink: true }}
-              value={form.moveOutDate}
-              onChange={handleChange('moveOutDate')}
-              error={errors.moveOutDate}
-              fullWidth
-            />
+          <TextField
+            label="Data wyprowadzenia"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={formatDateForInput(form.moveOutDate)}
+            onChange={handleChange('moveOutDate')}
+            error={errors.moveOutDate}
+            fullWidth
+          />
           <Box
             sx={{
               gridColumn: 'span 2',

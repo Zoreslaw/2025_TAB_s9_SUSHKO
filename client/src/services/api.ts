@@ -66,6 +66,7 @@ export interface ApiPayment {
   tenantId: number;
   approverId?: number;
   apartmentId: number;
+  orderId?: number;
   paymentAmount: number;
   paymentDescription: string;
   paymentDate: string;

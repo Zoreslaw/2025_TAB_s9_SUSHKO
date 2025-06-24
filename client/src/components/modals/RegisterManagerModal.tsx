@@ -15,6 +15,7 @@ export default function RegisterManagerModal({ open, onClose }: {
     errors,
     showSuccessModal,
     generatedPassword,
+    registrationLogin,
     handleChange,
     handleClose,
     handleSuccessModalClose,
@@ -101,7 +102,7 @@ export default function RegisterManagerModal({ open, onClose }: {
       <RegistrationSuccessModal
         open={showSuccessModal}
         onClose={handleSuccessModalClose}
-        login={form.login}
+        login={registrationLogin}
         password={generatedPassword}
       />
     </>

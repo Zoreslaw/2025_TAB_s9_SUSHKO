@@ -31,9 +31,6 @@ namespace server.Controllers
 
             var isManagerOrAdmin = userRole != null && (userRole.ToLower() == "manager" || userRole.ToLower() == "admin");
 
-            // Debug: Log the filtering parameters
-            Console.WriteLine($"GetPayments - UserId: {userIdInt}, UserRole: {userRole}, IsManagerOrAdmin: {isManagerOrAdmin}");
-
             var payments = await _context.Payments
                 .Include(p => p.Tenant)
                     .ThenInclude(t => t.Resident)
@@ -41,22 +38,22 @@ namespace server.Controllers
                 .Include(p => p.Approver)
                 .Include(p => p.Apartment)
                     .ThenInclude(a => a.Building)
-                .Where(p => isManagerOrAdmin || p.Tenant.Resident.UserId == userIdInt)
+                .Where(p => isManagerOrAdmin || 
+                           // Find payments for apartments where the user lives
+                           _context.Residents.Any(r => r.UserId == userIdInt && r.ApartmentId == p.ApartmentId))
                 .Select(p => new PaymentDto
                 {
                     PaymentId = p.PaymentId,
                     TenantId = p.TenantId,
                     ApproverId = p.ApproverId,
                     ApartmentId = p.ApartmentId,
+                    OrderId = p.OrderId,
                     PaymentAmount = p.PaymentAmount,
                     PaymentDescription = p.PaymentDescription,
                     PaymentDate = p.PaymentDate,
                     PaymentStatus = p.PaymentStatus
                 })
                 .ToListAsync();
-
-            // Debug: Log the results
-            Console.WriteLine($"GetPayments - Found {payments.Count} payments for user {userIdInt}");
 
             return Ok(payments);
         }
@@ -78,6 +75,7 @@ namespace server.Controllers
                     TenantId = p.TenantId,
                     ApproverId = p.ApproverId,
                     ApartmentId = p.ApartmentId,
+                    OrderId = p.OrderId,
                     PaymentAmount = p.PaymentAmount,
                     PaymentDescription = p.PaymentDescription,
                     PaymentDate = p.PaymentDate,
@@ -115,6 +113,7 @@ namespace server.Controllers
                 TenantId = payment.TenantId,
                 ApproverId = payment.ApproverId,
                 ApartmentId = payment.ApartmentId,
+                OrderId = payment.OrderId,
                 PaymentAmount = payment.PaymentAmount,
                 PaymentDescription = payment.PaymentDescription,
                 PaymentDate = payment.PaymentDate,
@@ -202,6 +201,15 @@ namespace server.Controllers
                 return BadRequest("Payment can only be created for completed orders.");
             }
 
+            // Check if a payment already exists for this order
+            var existingPayment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.OrderId == orderId);
+
+            if (existingPayment != null)
+            {
+                return BadRequest("A payment already exists for this order.");
+            }
+
             // Find the apartment where the issue occurred
             var issueApartment = order.Issue.Issuer.Residents
                 .Select(r => r.Apartment)
@@ -230,6 +238,7 @@ namespace server.Controllers
                 TenantId = tenant.TenantId,
                 ApproverId = approverId,
                 ApartmentId = issueApartment.ApartmentId,
+                OrderId = orderId, // Set the OrderId to link payment to order
                 PaymentAmount = order.Cost,
                 PaymentDescription = $"Płatność za naprawę: {order.OrderDescription}",
                 PaymentDate = DateTime.UtcNow,
@@ -260,6 +269,7 @@ namespace server.Controllers
                 TenantId = payment.TenantId,
                 ApproverId = payment.ApproverId,
                 ApartmentId = payment.ApartmentId,
+                OrderId = payment.OrderId,
                 PaymentAmount = payment.PaymentAmount,
                 PaymentDescription = payment.PaymentDescription,
                 PaymentDate = payment.PaymentDate,
@@ -279,13 +289,14 @@ namespace server.Controllers
                 .Include(p => p.Approver)
                 .Include(p => p.Apartment)
                     .ThenInclude(a => a.Building)
-                .Where(p => p.Tenant.Resident.UserId == userId) // Filter by user's tenant
+                .Where(p => _context.Residents.Any(r => r.UserId == userId && r.ApartmentId == p.ApartmentId)) // Filter by user's apartment
                 .Select(p => new PaymentDto
                 {
                     PaymentId = p.PaymentId,
                     TenantId = p.TenantId,
                     ApproverId = p.ApproverId,
                     ApartmentId = p.ApartmentId,
+                    OrderId = p.OrderId,
                     PaymentAmount = p.PaymentAmount,
                     PaymentDescription = p.PaymentDescription,
                     PaymentDate = p.PaymentDate,

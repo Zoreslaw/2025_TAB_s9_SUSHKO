@@ -21,14 +21,9 @@ export const usePayments = () => {
       const userId = parseInt(user.userId);
       const userRole = convertRoleToEnglish(user.role);
       
-      console.log('Fetching payments for user:', userId, 'with role:', userRole);
-      
       const data = await apiService.getPayments(userId, userRole);
-      console.log('Received payments:', data);
-      
       setPayments(data);
     } catch (err) {
-      console.error('Error fetching payments:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch payments');
     } finally {
       setLoading(false);

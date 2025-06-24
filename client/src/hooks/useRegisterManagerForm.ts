@@ -19,6 +19,7 @@ export function useRegisterManagerForm(options?: { onSuccess?: () => void }) {
   const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState('');
+  const [registrationLogin, setRegistrationLogin] = useState('');
 
   // Auto-generate login
   useEffect(() => {
@@ -67,6 +68,7 @@ export function useRegisterManagerForm(options?: { onSuccess?: () => void }) {
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
     setGeneratedPassword('');
+    setRegistrationLogin('');
     if (options?.onSuccess) {
       options.onSuccess();
     }
@@ -79,6 +81,7 @@ export function useRegisterManagerForm(options?: { onSuccess?: () => void }) {
       // Generate a random password if not provided
       const password = form.password || generateRandomPassword();
       setGeneratedPassword(password);
+      setRegistrationLogin(form.login);
       
       await apiService.registerManager({
         ...form,
@@ -108,6 +111,7 @@ export function useRegisterManagerForm(options?: { onSuccess?: () => void }) {
     errors,
     showSuccessModal,
     generatedPassword,
+    registrationLogin,
     handleChange,
     handleOpen,
     handleClose,

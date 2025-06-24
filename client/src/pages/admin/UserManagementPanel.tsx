@@ -1,6 +1,6 @@
 import React from 'react';
 import { DataGrid, GridColDef, GridRowId, GridRenderCellParams } from '@mui/x-data-grid';
-import { Button, Stack, Box, TextField } from '@mui/material';
+import { Button, Stack, Box, TextField, Autocomplete } from '@mui/material';
 import Paper from '@mui/material/Paper';
 import { useUserTable } from '../../hooks/useUserTable';
 import { UserRoles } from '../../types/User';
@@ -13,9 +13,11 @@ import { UserRow } from '../../hooks/useUserTable';
 // Render dash, if value is null
 const renderValueOrDash = (params: GridRenderCellParams) => params.value ?? '-';
 
-// Returns dash, if date is null
-const renderDateOrDash = (params: GridRenderCellParams) =>
-  params.value ? new Date(params.value).toLocaleDateString() : '-';
+// Render date or dash
+const renderDateOrDash = (params: GridRenderCellParams) => {
+  if (!params.value) return '-';
+  return new Date(params.value).toLocaleDateString('pl-PL');
+};
 
 const UserManagementPanel: React.FC = () => {
   const {
@@ -46,37 +48,37 @@ const UserManagementPanel: React.FC = () => {
     { field: 'apartmentNumber', headerName: 'Numer mieszkania', type: 'number', align: 'left', width: 140, renderCell: renderValueOrDash },
     { field: 'moveInDate', headerName: 'Data wprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
     { field: 'moveOutDate', headerName: 'Data wyprowadzenia', type: 'date', width: 160, renderCell: renderDateOrDash },
-    {
-      field: 'actions',
-      headerName: '',
-      width: 150,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Button
-          variant="text"
-          size="small"
-          onClick={() => handleOpenModal(params.row.userId)}
-        >
-          Szczegóły
-        </Button>
-      ),
-    },
   ];
 
   return (
     <Paper sx={{ height: 800, width: '98%', marginTop: '1px', boxShadow: 0 }}>
+      {/* Search field at the top left */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
+        <TextField
+          size="small"
+          label="Wyszukaj..."
+          value={search}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          sx={{ minWidth: 300 }}
+        />
+      </Box>
+      {/* Controls row: dropdown, edit, add */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 2 }}>
         <Stack direction="row" spacing={2}>
-          {/* Search field */}
-          <TextField
-            size="small"
-            label="Wyszukaj..."
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
+          <Autocomplete
+            options={filteredRows}
+            getOptionLabel={(user) => `${user.login} (${user.role})`}
+            onChange={(_, val) => setSelectedRowId(val?.userId || null)}
+            value={selectedUser || null}
+            renderInput={(params) => <TextField {...params} label="Wybierz użytkownika" variant="outlined" sx={{ width: 350 }} />}
           />
-
-          {/* Add new user button */}
+          <Button 
+            variant="outlined" 
+            disabled={!selectedUser} 
+            onClick={() => handleOpenModal(selectedUser?.userId || '')}
+          >
+            Edytuj
+          </Button>
           <ExpandableAddUserButton />
         </Stack>
       </Box>
@@ -104,7 +106,14 @@ const UserManagementPanel: React.FC = () => {
         loading={loading}
         initialState={{ pagination: { paginationModel: { page: 0, pageSize: 20 } } }}
         pageSizeOptions={[5, 10, 20, 30]}
-        sx={{ border: 0 }}
+        sx={{
+          border: 0,
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#f5f5f5',
+            color: '#222',
+            fontWeight: 'bold',
+          },
+        }}
       />
     </Paper>
   );

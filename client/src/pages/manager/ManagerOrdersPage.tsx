@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -30,11 +30,13 @@ import {
   Payment as PaymentIcon,
 } from '@mui/icons-material';
 import { useOrders } from '../../hooks/useOrders';
+import { usePayments } from '../../hooks/usePayments';
 import { apiService } from '../../services/api';
 import { Order, OrderStatus } from '../../types/Order';
 
 const ManagerOrdersPage: React.FC = () => {
   const { orders, updateOrder, fetchOrders } = useOrders();
+  const { payments, fetchPayments } = usePayments();
   
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -45,7 +47,18 @@ const ManagerOrdersPage: React.FC = () => {
     orderStatus: 'pending' as OrderStatus,
   });
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
-  const [paidOrders, setPaidOrders] = useState<Set<number>>(new Set());
+
+  // Get orders that have payments
+  const ordersWithPayments = new Set(
+    payments
+      .filter(payment => payment.orderId)
+      .map(payment => payment.orderId)
+  );
+
+  // Fetch payments when component mounts
+  useEffect(() => {
+    fetchPayments();
+  }, [fetchPayments]);
 
   const handleUpdateOrder = async () => {
     if (selectedOrder) {
@@ -71,8 +84,8 @@ const ManagerOrdersPage: React.FC = () => {
     try {
       await apiService.createPaymentFromOrder(order.orderId, 1);
       setSnackbar({ open: true, message: 'Płatność została utworzona.', severity: 'success' });
-      setPaidOrders(prev => new Set(prev).add(order.orderId));
-      await fetchOrders();
+      // Refresh payments to update the UI
+      await fetchPayments();
     } catch (error: any) {
       setSnackbar({ open: true, message: error.message || 'Błąd podczas tworzenia płatności.', severity: 'error' });
     }
@@ -161,7 +174,7 @@ const ManagerOrdersPage: React.FC = () => {
                       <CompleteIcon />
                     </IconButton>
                   )}
-                  {order.orderStatus === 'completed' && !paidOrders.has(order.orderId) && (
+                  {order.orderStatus === 'completed' && !ordersWithPayments.has(order.orderId) && (
                     <IconButton
                       onClick={() => handleCreatePayment(order)}
                       color="primary"

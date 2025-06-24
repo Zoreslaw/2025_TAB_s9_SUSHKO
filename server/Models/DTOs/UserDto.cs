@@ -21,6 +21,8 @@ namespace server.Models.DTOs
         public string? ResidentStatus { get; set; }
         public DateTime? MoveoutDate { get; set; }
         public TenantDto? Tenant { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
     }
 
     public class TenantDto
@@ -70,6 +72,7 @@ namespace server.Models.DTOs
         public int TenantId { get; set; }
         public int? ApproverId { get; set; }
         public int ApartmentId { get; set; }
+        public int? OrderId { get; set; }
         public decimal PaymentAmount { get; set; }
         public string PaymentDescription { get; set; } = string.Empty;
         public DateTime PaymentDate { get; set; }

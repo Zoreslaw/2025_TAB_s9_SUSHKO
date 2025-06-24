@@ -64,11 +64,11 @@ function EditableTable<T>({
     <>
       <TableContainer component={Paper}>
         <Table>
-          <TableHead>
+          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
             <TableRow>
-              <TableCell>Lp.</TableCell>
+              <TableCell sx={{ color: '#222', fontWeight: 'bold' }}>Lp.</TableCell>
               {columns.map(col => (
-                <TableCell key={col.key as string}>
+                <TableCell key={col.key as string} sx={{ color: '#222', fontWeight: 'bold' }}>
                   <TableSortLabel
                     active={sortKey === col.key}
                     direction={sortKey === col.key ? sortDirection : 'asc'}
