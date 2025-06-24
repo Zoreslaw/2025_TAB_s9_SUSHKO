@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
 import { User, UserStatus } from '../types/User';
 import { Tenant } from '../types/Tenant';
+import { apiService } from '../services/api';
 
-export function useEditTenantForm(userData: Tenant, onClose: () => void) {
+export function useEditTenantForm(userData: Tenant, onClose: () => void, options?: { onSuccess?: () => void }) {
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    userStatus: UserStatus.ACTIVE,
-    email: '',
+    userId: userData.userId,
+    firstName: userData.firstName || '',
+    lastName: userData.lastName || '',
+    userStatus: userData.userStatus || UserStatus.ACTIVE,
+    email: userData.email || '',
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setForm({
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      userStatus: userData.userStatus,
-      email: userData.email
+      userId: userData.userId,
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      userStatus: userData.userStatus || UserStatus.ACTIVE,
+      email: userData.email || '',
     });
   }, [userData]);
 
@@ -35,12 +38,17 @@ export function useEditTenantForm(userData: Tenant, onClose: () => void) {
     window.location.reload()
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isFormValid()) {
-
-      handleClose();
-
-      // Send data to DB
+      try {
+        await apiService.updateUser(Number(form.userId), form);
+        handleClose();
+        if (options?.onSuccess) {
+          options.onSuccess();
+        }
+      } catch (error) {
+        console.error('Failed to update tenant:', error);
+      }
     }
   };
 

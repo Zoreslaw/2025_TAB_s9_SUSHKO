@@ -1,0 +1,77 @@
+### Test Users Endpoints
+GET http://localhost:5213/api/users
+
+### Test Create User
+POST http://localhost:5213/api/users
+Content-Type: application/json
+
+{
+  "login": "testuser",
+  "password": "testpass123",
+  "role": "resident",
+  "userStatus": "active"
+}
+
+### Test Register Resident
+POST http://localhost:5213/api/users/register
+Content-Type: application/json
+
+{
+  "login": "john.doe",
+  "password": "password123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "address": "ul. Testowa 123, Warszawa",
+  "apartmentNumber": "A1",
+  "moveInDate": "2024-01-01",
+  "role": "resident",
+  "userStatus": "active"
+}
+
+### Test Issues Endpoints
+GET http://localhost:5213/api/issues
+
+### Test Create Issue
+POST http://localhost:5213/api/issues
+Content-Type: application/json
+
+{
+  "issuerId": 1,
+  "issueDescription": "Brak ogrzewania w mieszkaniu",
+  "issueType": "maintenance",
+  "issueStatus": "pending"
+}
+
+### Test Update Issue
+PUT http://localhost:5213/api/issues/1
+Content-Type: application/json
+
+{
+  "issueStatus": "in_progress",
+  "operatorId": 2
+}
+
+### Test Payments Endpoints
+GET http://localhost:5213/api/payments
+
+### Test Create Payment
+POST http://localhost:5213/api/payments
+Content-Type: application/json
+
+{
+  "tenantId": 1,
+  "apartmentId": 1,
+  "paymentAmount": 1500.00,
+  "paymentDescription": "Czynsz za styczeń 2024",
+  "paymentDate": "2024-01-15",
+  "paymentStatus": "pending"
+}
+
+### Test Update Payment
+PUT http://localhost:5213/api/payments/1
+Content-Type: application/json
+
+{
+  "paymentStatus": "paid",
+  "approverId": 2
+} 

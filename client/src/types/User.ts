@@ -22,5 +22,3 @@ export enum UserRoles {
     TENANT = 'najemca',
 }
 
-
-

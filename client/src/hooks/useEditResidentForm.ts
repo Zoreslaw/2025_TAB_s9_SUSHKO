@@ -1,29 +1,32 @@
 import { useEffect, useState } from 'react';
 import { Resident } from '../types/Resident';
 import { User, UserStatus } from '../types/User';
+import { apiService } from '../services/api';
 
-export function useEditResidentForm(userData: Resident, onClose: () => void) {
+export function useEditResidentForm(userData: Resident, onClose: () => void, options?: { onSuccess?: () => void }) {
   const [form, setForm] = useState({
-    firstName: '',
-    lastName: '',
-    address: '',
-    apartmentNumber: '',
-    moveInDate: '',
-    moveOutDate: '',
-    userStatus: UserStatus.ACTIVE,
+    userId: userData.userId,
+    firstName: userData.firstName || '',
+    lastName: userData.lastName || '',
+    address: userData.address || '',
+    apartmentNumber: userData.apartmentNumber || '',
+    moveInDate: userData.moveInDate || '',
+    moveOutDate: userData.moveOutDate || '',
+    userStatus: userData.userStatus || UserStatus.ACTIVE,
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setForm({
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      address: userData.address,
-      apartmentNumber: userData.apartmentNumber,
-      moveInDate: userData.moveInDate ? new Date(userData.moveInDate).toISOString().split('T')[0] : '',
-      moveOutDate: userData.moveOutDate ? new Date(userData.moveOutDate).toISOString().split('T')[0] : '',
-      userStatus: userData.userStatus,
+      userId: userData.userId,
+      firstName: userData.firstName || '',
+      lastName: userData.lastName || '',
+      address: userData.address || '',
+      apartmentNumber: userData.apartmentNumber || '',
+      moveInDate: userData.moveInDate || '',
+      moveOutDate: userData.moveOutDate || '',
+      userStatus: userData.userStatus || UserStatus.ACTIVE,
     });
   }, [userData]);
 
@@ -43,12 +46,17 @@ export function useEditResidentForm(userData: Resident, onClose: () => void) {
     window.location.reload()
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isFormValid()) {
-
-      handleClose();
-
-      // Send data to DB
+      try {
+        await apiService.updateUser(Number(form.userId), form);
+        handleClose();
+        if (options?.onSuccess) {
+          options.onSuccess();
+        }
+      } catch (error) {
+        console.error('Failed to update resident:', error);
+      }
     }
   };
 

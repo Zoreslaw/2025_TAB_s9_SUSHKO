@@ -1,18 +1,29 @@
 import { useState, useEffect } from 'react';
+import { apiService } from '../services/api';
 
 const initialForm = {
+  login: '',
+  password: '',
+  role: 'Najemca',
   firstName: '',
   lastName: '',
-  email: '',
-  status: '',
-  login: '',
+  buildingId: 0,
+  apartmentNumber: '',
+  moveInDate: '',
+  moveOutDate: '',
+  status: 'active'
 };
 
-export function useRegisterTenantForm() {
+const validateName = (name: string) => /^[a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ\s-]{2,50}$/.test(name);
+const validateBuilding = (buildingId: number) => buildingId > 0;
+
+export function useRegisterTenantForm(options?: { onSuccess?: () => void }) {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
-  const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
+  const [loginManuallyChanged, setLoginManuallyChanged] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [generatedPassword, setGeneratedPassword] = useState('');
 
   // Auto-generate login
   useEffect(() => {
@@ -22,33 +33,30 @@ export function useRegisterTenantForm() {
       const random = Math.floor(10000 + Math.random() * 90000);
       setForm(prev => ({ ...prev, login: `${initials}${random}` }));
     }
-    }, [form.firstName, form.lastName, loginManuallyChanged]);
+  }, [form.firstName, form.lastName, loginManuallyChanged]);
 
   const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-
-    if (field === 'apartmentNumber' && value && parseInt(value) < 0) return;
-
     setForm(prev => ({ ...prev, [field]: value }));
-
-    if (['firstName', 'lastName'].includes(field)) {
-      setLoginManuallyChanged(false);
-    }
+    
     if (field === 'login') {
       setLoginManuallyChanged(true);
     }
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: false }));
+    }
   };
-
-  // Name and address validation
-  const validateName = (name: string) => /^[A-Za-zĄąĆćĘęŁłŃńÓóŚśŹźŻż\s\-]+$/.test(name);
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const isFormValid = () => {
     const newErrors: Record<string, boolean> = {};
-   
+
     if (!form.firstName || !validateName(form.firstName)) newErrors.firstName = true;
     if (!form.lastName || !validateName(form.lastName)) newErrors.lastName = true;
-    if (form.email && !validateEmail(form.email)) newErrors.email = true;  
+    if (!form.buildingId || !validateBuilding(form.buildingId)) newErrors.buildingId = true;
+    if (!form.apartmentNumber) newErrors.apartmentNumber = true;
+    if (!form.moveInDate) newErrors.moveInDate = true;
     if (!form.status) newErrors.status = true;
     if (!form.login) newErrors.login = true;
 
@@ -56,28 +64,62 @@ export function useRegisterTenantForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleOpen = () => setOpen(true);
   const handleClose = () => {
     setOpen(false);
     setForm(initialForm);
-    setLoginManuallyChanged(false);
     setErrors({});
-    window.location.reload()
+    setLoginManuallyChanged(false);
   };
 
-  const handleSubmit = () => {
+  const handleSuccessModalClose = () => {
+    setShowSuccessModal(false);
+    setGeneratedPassword('');
+    if (options?.onSuccess) {
+      options.onSuccess();
+    }
+  };
+
+  const handleSubmit = async () => {
     if (!isFormValid()) return;
 
+    try {
+      // Generate a random password if not provided
+      const password = form.password || generateRandomPassword();
+      setGeneratedPassword(password);
+      
+      await apiService.registerResident({
+        ...form,
+        password,
+        role: 'tenant'
+      });
+      
+      handleClose();
+      setShowSuccessModal(true);
+    } catch (error) {
+      console.error('Failed to register tenant:', error);
+      // Handle error appropriately
+    }
+  };
 
-    handleClose();
-
-    // Send data to DB
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+    let password = '';
+    for (let i = 0; i < 12; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
   };
 
   return {
     form,
     errors,
+    showSuccessModal,
+    generatedPassword,
     handleChange,
+    handleOpen,
     handleClose,
+    handleSuccessModalClose,
     handleSubmit,
   };
 }

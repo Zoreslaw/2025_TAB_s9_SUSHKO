@@ -1,247 +1,206 @@
-# Building Administration Management System
+# Property Management System
 
-Welcome to the **Building Administration Management System** repository! This project is a full-stack application designed to support the daily work of building administrators. The system handles registration and payment processing, maintenance and repair requests, delegation of work to subcontractors, and generates both operational and management reports.
+A comprehensive property management system with user management, payment tracking, and issue reporting functionality.
 
-> **Assignment Code:** ŁW4  
-> **Subject:** System informatyczny wspomagający pracę administratora budynków  
-> **Instructor:** Łukasz Wyciślik  
-> **Contact:** lwycislik@polsl.pl, (p. 418)
+## System Overview
 
---------------------------------------------------------------------------------
+This system consists of:
+- **Frontend**: React TypeScript application with Material-UI components
+- **Backend**: ASP.NET Core Web API with Entity Framework Core
+- **Database**: PostgreSQL database
 
-## Table of Contents
+## Frontend Functionality
 
-1. [Installation](#installation)
-2. [Database Configuration](#database-configuration)
-3. [Running the Application](#running-the-application)
-4. [Testing the API](#testing-the-api)
-5. [Troubleshooting](#troubleshooting)
-6. [Contributing](#contributing)
-7. [Repository Structure](#repository-structure)
+### User Management
+- **User Registration**: Register new residents, tenants, and managers
+- **User Editing**: Update user information and status
+- **User Table**: View all users with search and filtering capabilities
+- **Role-based Access**: Different roles (Admin, Manager, Resident, Tenant)
 
---------------------------------------------------------------------------------
+### Payment Management
+- **Payment Tracking**: View all payments with status tracking
+- **Payment Creation**: Create new payment records
+- **Payment History**: Track payment history and outstanding amounts
+- **Payment Status**: Pending, Paid, Overdue, Cancelled
 
-## Installation
+### Issue Management
+- **Issue Reporting**: Report maintenance and other issues
+- **Issue Tracking**: Track issue status and progress
+- **Issue Types**: Maintenance, Payment, Other
+- **Issue Status**: New, In Progress, Resolved, Cancelled
 
-### 1. Clone the Repository
+### Dashboard
+- **Payments Panel**: Overview of pending and overdue payments
+- **Issues Panel**: Active issues and resolution progress
+- **Notifications**: System notifications and alerts
 
-    git clone https://github.com/<your-organization-or-username>/building-admin-system.git
-    cd building-admin-system
+## Backend API Endpoints
 
-### 2. Client Setup
+### Authentication
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
 
-For a **JavaScript-based front end (React or Vue):**
+### Users
+- `GET /api/users` - Get all users
+- `GET /api/users/{id}` - Get user by ID
+- `POST /api/users` - Create new user
+- `PUT /api/users/{id}` - Update user
+- `DELETE /api/users/{id}` - Delete user
+- `POST /api/users/register` - Register resident with apartment info
 
-1. Navigate to the client folder:
-    
-       cd client
-    
+### Issues
+- `GET /api/issues` - Get all issues
+- `GET /api/issues/{id}` - Get issue by ID
+- `POST /api/issues` - Create new issue
+- `PUT /api/issues/{id}` - Update issue
+- `DELETE /api/issues/{id}` - Delete issue
+
+### Payments
+- `GET /api/payments` - Get all payments
+- `GET /api/payments/{id}` - Get payment by ID
+- `POST /api/payments` - Create new payment
+- `PUT /api/payments/{id}` - Update payment
+- `DELETE /api/payments/{id}` - Delete payment
+
+### Notifications
+- `GET /api/notifications` - Get all notifications
+
+## Data Models
+
+### User
+```typescript
+interface User {
+  userId: string;
+  login: string;
+  password: string;
+  avatarUrl: string;
+  role: UserRoles;
+  userStatus: UserStatus;
+  userCreationDate: Date;
+}
+```
+
+### Resident
+```typescript
+interface Resident extends User {
+  residentId: string;
+  userId: string;
+  apartmentId: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartmentNumber: string;
+  moveInDate: Date;
+  residentStatus: ResidentStatus;
+  moveOutDate?: Date;
+}
+```
+
+### Payment
+```typescript
+interface Payment {
+  paymentId: string;
+  payerId: string;
+  approverId?: string;
+  apartmentId: string;
+  amount: number;
+  description: string;
+  paymentDate: Date;
+  dueDate: Date;
+  status: PaymentStatus;
+  type: PaymentType;
+}
+```
+
+### Issue
+```typescript
+interface Issue {
+  issueId: string;
+  issuerId: string;
+  operatorId?: string;
+  description: string;
+  status: IssueStatus;
+  type: IssueType;
+  creationDate: Date;
+  updateDate?: Date;
+}
+```
+
+## Setup Instructions
+
+### Backend Setup
+1. Navigate to the `server` directory
+2. Update connection string in `appsettings.json`
+3. Run database migrations:
+   ```bash
+   dotnet ef database update
+   ```
+4. Start the server:
+   ```bash
+   dotnet run
+   ```
+
+### Frontend Setup
+1. Navigate to the `client` directory
 2. Install dependencies:
-    
-       npm install
-    
-   or
-   
-       yarn install
-    
-3. (Optional) Configure environment variables:
-   Create and configure `.env` or equivalent files as needed. These files are ignored by Git via `.gitignore`.
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-For a **desktop client (JavaFX, Swing, Windows Forms, WPF)**:
-Set up your project in your chosen IDE (e.g., IntelliJ IDEA, Visual Studio) and import the project files.
+## Testing
 
-### 3. Server Setup & Database Integration
+Use the provided `test-endpoints.http` file to test all API endpoints. You can run these tests in VS Code with the REST Client extension or in any HTTP client like Postman.
 
-Depending on your chosen back-end technology:
+## Key Features Implemented
 
-**For .NET Core:**
+### ✅ Complete CRUD Operations
+- User management (Create, Read, Update, Delete)
+- Issue management (Create, Read, Update, Delete)
+- Payment management (Create, Read, Update, Delete)
 
-1. Navigate to the server folder:
-    
-       cd ../server
-    
-2. Restore .NET dependencies:
-    
-       dotnet restore
-    
-3. Update `appsettings.json`:
-   Ensure the connection string is properly set up (see [Database Configuration](#database-configuration)).
+### ✅ Frontend-Backend Integration
+- API service layer with proper error handling
+- Custom hooks for data management
+- Real-time data updates
 
-**For Java (Spring):**
+### ✅ User Registration System
+- Automatic building and apartment creation
+- Role-based user creation
+- Password hashing with BCrypt
 
-1. Open the project in your IDE (e.g., IntelliJ IDEA or Eclipse).  
-2. Configure your `application.yml` or `application.properties` file with the proper database connection settings.  
-3. Build the project using Maven or Gradle.
+### ✅ Dashboard Functionality
+- Payment overview with outstanding amounts
+- Issue tracking with progress indicators
+- Real-time data display
 
---------------------------------------------------------------------------------
+### ✅ Form Validation
+- Client-side validation for all forms
+- Error handling and user feedback
+- Auto-generated login credentials
 
-## Database Configuration
+## Missing Functionality (To Be Implemented)
 
-### Connection String
+1. **File Upload**: Issue attachments and user avatars
+2. **Email Notifications**: Automated email notifications
+3. **Advanced Search**: More sophisticated filtering options
+4. **Reports**: Payment and issue reports
+5. **Audit Logging**: Track all system changes
+6. **Mobile App**: React Native mobile application
 
-For **.NET Core**, the connection string is located in `appsettings.json`. An example configuration for PostgreSQL looks like:
+## Security Features
 
-    {
-      "ConnectionStrings": {
-        "DefaultConnection": "Host=localhost;Port=5432;Database=building_admin_db;Username=postgres;Password=YOUR_PASSWORD"
-      },
-      "Logging": {
-        "LogLevel": {
-          "Default": "Information",
-          "Microsoft.AspNetCore": "Warning"
-        }
-      },
-      "AllowedHosts": "*"
-    }
+- Password hashing with BCrypt
+- Input validation and sanitization
+- Role-based access control
+- Secure API endpoints
 
-For **Spring**, configure your connection string in `application.yml` or `application.properties`.  
-- **Host:** The hostname or IP of your database server.  
-- **Port:** Default for PostgreSQL is 5432 (adjust as needed for other databases).  
-- **Database:** The name (e.g., `building_admin_db`).  
-- **Username & Password:** Your database credentials.
+## Performance Optimizations
 
-### Applying Migrations
-
-We use ORM migrations to manage database schema changes.
-
-**For .NET Core (Entity Framework Core):**
-
-1. Open Package Manager Console in Visual Studio or a terminal in the `server` folder.  
-2. Create the initial migration (if not already existing):
-    
-       dotnet ef migrations add InitialCreate
-    
-3. Apply the migration:
-    
-       dotnet ef database update
-
-**For Spring (using Liquibase or Flyway):**
-
-- Configure and run your migration tool to create or update the database schema as needed.
-
-### Seeding the Database
-
-If a **SeedData** (or similar) class is included to populate initial data, ensure it is called during application startup. For example, in a .NET Core project, you might see:
-
-    using (var scope = app.Services.CreateScope())
-    {
-        var services = scope.ServiceProvider;
-        SeedData.Initialize(services);
-    }
-
-After starting the server, check your database to confirm that the data has been seeded properly.
-
-### Updating the Database Schema
-
-After modifying your models or adding new ones:
-
-1. Add a new migration (for example, `AddMaintenanceTable`):
-   
-       dotnet ef migrations add AddMaintenanceTable
-   
-2. Apply the migration:
-   
-       dotnet ef database update
-   
-3. Commit and push the generated migration files so your team stays in sync.
-
---------------------------------------------------------------------------------
-
-## Running the Application
-
-1. **Start your database server** (or use Docker):
-   
-       docker-compose up -d
-   
-   or ensure your local database service is running.
-
-2. **Run the back-end server**:
-   - For .NET Core:
-         
-         cd server
-         dotnet run
-   
-   - For Spring:
-     Run the application from your IDE or via Maven/Gradle commands.
-
-3. **Run the client application**:
-   - For a JavaScript-based front end:
-         
-         cd client
-         npm run dev
-      or
-         
-         yarn run dev
-   
-   - For a desktop client:
-     Launch the application via your IDE or build the executable.
-
---------------------------------------------------------------------------------
-
-## Testing the API
-
-1. **Swagger UI (if enabled, .NET Core)**:  
-   Navigate to `https://localhost:5001/swagger/index.html` (or the configured port) to view and test available endpoints.
-
-2. **REST Clients (Postman/Insomnia)**:  
-   For example:
-   
-       GET https://localhost:5001/api/Occupancies
-       POST https://localhost:5001/api/Payments
-
-3. **Check the Database**:  
-   Use your preferred client (pgAdmin, MySQL Workbench, etc.) to verify data persistence in the database.
-
---------------------------------------------------------------------------------
-
-## Troubleshooting
-
-- **Migrations Not Found**  
-  - Ensure the appropriate ORM tools (EF Core Tools, Liquibase/Flyway for Spring) are installed.  
-  - Verify you’re running commands in the correct folder and that your context/configuration is correctly set.
-
-- **Connection Issues**  
-  - Double-check your connection string in `appsettings.json` or `application.yml`.  
-  - Confirm that your database server is running and that firewall/port settings are correct.
-
-- **Seeding Errors**  
-  - Check that the seed logic is correctly invoked during startup and that no data conflicts exist.
-
---------------------------------------------------------------------------------
-
-## Contributing
-
-1. **Branching**: Create a feature branch for new features or bug fixes (e.g., `feature/add-maintenance-module`).  
-2. **Pull Requests**: Submit a pull request to the main branch. Please include detailed descriptions of your changes.  
-3. **Code Reviews**: Await at least one team member’s review and approval before merging changes.  
-4. **Documentation**: Update this README and any relevant `docs/` files when making significant changes.
-
---------------------------------------------------------------------------------
-
-## Repository Structure
-
-Below is a conceptual view of how the project is structured:
-
-    .
-    ├── client/              # Front-end application (React, Vue, or desktop code)
-    │   ├── public/
-    │   └── src/
-    │       ├── components/
-    │       ├── pages/
-    │       └── ...
-    ├── server/              # Back-end application (.NET Core or Spring)
-    │   ├── Controllers/
-    │   ├── Data/
-    │   ├── Migrations/
-    │   ├── Models/
-    │   ├── Program.cs       # For .NET Core
-    │   ├── application.yml  # Or application.properties for Spring
-    │   ├── appsettings.json # For .NET Core
-    │   └── ...
-    ├── docs/                # Documentation
-    └── README.md            # This file
-
---------------------------------------------------------------------------------
-
-With best regards,  
-*The Development Team*
+- Efficient database queries with Entity Framework
+- Frontend state management with React hooks
+- Optimized API responses with DTOs
+- Lazy loading for large datasets

@@ -1,16 +1,19 @@
 import { useEffect, useState } from 'react';
 import { User, UserStatus } from '../types/User';
+import { apiService } from '../services/api';
 
-export function useEditManagerForm(userData: User, onClose: () => void) {
+export function useEditManagerForm(userData: User, onClose: () => void, options?: { onSuccess?: () => void }) {
   const [form, setForm] = useState({
-    userStatus: UserStatus.ACTIVE,
+    userId: userData.userId,
+    userStatus: userData.userStatus || UserStatus.ACTIVE,
   });
 
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setForm({
-      userStatus: userData.userStatus,
+      userId: userData.userId,
+      userStatus: userData.userStatus || UserStatus.ACTIVE,
     });
   }, [userData]);
 
@@ -24,12 +27,18 @@ export function useEditManagerForm(userData: User, onClose: () => void) {
     window.location.reload()
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isFormValid()) {
-
-      handleClose();
-
-      // Send data to DB
+      try {
+        await apiService.updateUser(Number(form.userId), form);
+        handleClose();
+        if (options?.onSuccess) {
+          options.onSuccess();
+        }
+      } catch (error) {
+        console.error('Failed to update manager:', error);
+        // Handle error appropriately
+      }
     }
   };
 

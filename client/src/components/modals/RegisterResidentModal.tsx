@@ -4,26 +4,63 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRegisterResidentForm } from '../../hooks/useRegisterResidentForm';
+import { useBuildings } from '../../hooks/useBuildings';
+import { useApartments } from '../../hooks/useApartments';
+import { useState, useMemo } from 'react';
+import RegistrationSuccessModal from './RegistrationSuccessModal';
 
-export default function RegisterResidentModal({ open }: {
+export default function RegisterResidentModal({ open, onClose }: {
   open: boolean;
   onClose: () => void;
 }) {
+  const { buildings } = useBuildings();
+  const { apartments } = useApartments();
+  
+  const [selectedBuildingId, setSelectedBuildingId] = useState<number>(0);
+  
+  // Filter apartments by selected building
+  const filteredApartments = useMemo(() => {
+    if (!selectedBuildingId) return [];
+    return apartments.filter(apartment => apartment.buildingId === selectedBuildingId);
+  }, [apartments, selectedBuildingId]);
+
   const {
     form,
     errors,
+    showSuccessModal,
+    generatedPassword,
+    registrationLogin,
     handleChange,
     handleClose,
+    handleSuccessModalClose,
     handleSubmit,
-  } = useRegisterResidentForm();
+  } = useRegisterResidentForm({
+    onSuccess: () => {
+      handleClose();
+      onClose();
+    }
+  });
+
+  // Helper to close modal from UI (button, dialog X, etc)
+  const closeModal = () => {
+    handleClose();
+    onClose();
+  };
+
+  const handleBuildingChange = (buildingId: number) => {
+    setSelectedBuildingId(buildingId);
+    // Reset apartment selection when building changes
+    handleChange('apartmentNumber')({ target: { value: '' } } as any);
+    // Update the form with buildingId
+    handleChange('buildingId')({ target: { value: buildingId.toString() } } as any);
+  };
 
   return (
     <>
-
-      <Dialog open={open} onClose={handleClose} maxWidth={'sm'} fullWidth>
+      <Dialog open={open} onClose={closeModal} maxWidth={'sm'} fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
           Zarejestruj mieszkańca
-          <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
+          <IconButton onClick={closeModal} sx={{ color: 'grey.500' }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -50,31 +87,45 @@ export default function RegisterResidentModal({ open }: {
               error={errors.lastName}
               fullWidth
             />
-              <TextField
-                label="Adres"
-                value={form.address}
-                onChange={handleChange('address')}
-                error={errors.address}
-                fullWidth
-              />
-              <TextField
-                label="Numer mieszkania"
-                type="number"
-                inputProps={{ min: 0 }}
-                value={form.apartmentNumber}
-                onChange={handleChange('apartmentNumber')}
-                error={errors.apartmentNumber}
-                fullWidth
-              />
-              <TextField
-                label="Data wprowadzenia"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={form.moveInDate}
-                onChange={handleChange('moveInDate')}
-                error={errors.moveInDate}
-                fullWidth
-              />
+            <TextField
+              select
+              label="Budynek"
+              value={selectedBuildingId}
+              onChange={(e) => handleBuildingChange(Number(e.target.value))}
+              error={!selectedBuildingId}
+              helperText={!selectedBuildingId ? 'Wybierz budynek' : ''}
+              fullWidth
+            >
+              {buildings.map((building) => (
+                <MenuItem key={building.buildingId} value={building.buildingId}>
+                  {building.address}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              label="Mieszkanie"
+              value={form.apartmentNumber}
+              onChange={handleChange('apartmentNumber')}
+              error={errors.apartmentNumber}
+              disabled={!selectedBuildingId}
+              fullWidth
+            >
+              {filteredApartments.map((apartment) => (
+                <MenuItem key={apartment.apartmentId} value={apartment.apartmentNumber}>
+                  {apartment.apartmentNumber}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Data wprowadzenia"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={form.moveInDate}
+              onChange={handleChange('moveInDate')}
+              error={errors.moveInDate}
+              fullWidth
+            />
             <TextField
               select
               label="Status"
@@ -87,15 +138,15 @@ export default function RegisterResidentModal({ open }: {
               <MenuItem value="Nieaktywny">Nieaktywny</MenuItem>
               <MenuItem value="Zablokowany">Zablokowany</MenuItem>
             </TextField>
-              <TextField
-                label="Data wyprowadzenia"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={form.moveOutDate}
-                onChange={handleChange('moveOutDate')}
-                error={errors.moveOutDate}
-                fullWidth
-              />
+            <TextField
+              label="Data wyprowadzenia"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={form.moveOutDate}
+              onChange={handleChange('moveOutDate')}
+              error={errors.moveOutDate}
+              fullWidth
+            />
             <TextField
               label="Sugerowany login"
               value={form.login}
@@ -116,6 +167,14 @@ export default function RegisterResidentModal({ open }: {
           </Box>
         </DialogContent>
       </Dialog>
+
+      {/* Success Modal */}
+      <RegistrationSuccessModal
+        open={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        login={registrationLogin}
+        password={generatedPassword}
+      />
     </>
   );
 }

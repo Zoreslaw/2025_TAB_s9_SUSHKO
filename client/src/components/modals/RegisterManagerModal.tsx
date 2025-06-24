@@ -4,26 +4,40 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useRegisterManagerForm } from '../../hooks/useRegisterManagerForm';
+import RegistrationSuccessModal from './RegistrationSuccessModal';
 
-export default function RegisterManagerModal({ open }: {
+export default function RegisterManagerModal({ open, onClose }: {
   open: boolean;
   onClose: () => void;
 }) {
   const {
     form,
     errors,
+    showSuccessModal,
+    generatedPassword,
     handleChange,
     handleClose,
+    handleSuccessModalClose,
     handleSubmit,
-  } = useRegisterManagerForm();
+  } = useRegisterManagerForm({
+    onSuccess: () => {
+      handleClose();
+      onClose();
+    }
+  });
+
+  // Helper to close modal from UI (button, dialog X, etc)
+  const closeModal = () => {
+    handleClose();
+    onClose();
+  };
 
   return (
     <>
-
-      <Dialog open={open} onClose={handleClose} maxWidth={'xs'} fullWidth>
+      <Dialog open={open} onClose={closeModal} maxWidth={'sm'} fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between' }}>
           Zarejestruj menadżera
-          <IconButton onClick={handleClose} sx={{ color: 'grey.500' }}>
+          <IconButton onClick={closeModal} sx={{ color: 'grey.500' }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
@@ -37,6 +51,20 @@ export default function RegisterManagerModal({ open }: {
             }}
           >
             <TextField
+              label="Imię"
+              value={form.firstName}
+              onChange={handleChange('firstName')}
+              error={errors.firstName}
+              fullWidth
+            />
+            <TextField
+              label="Nazwisko"
+              value={form.lastName}
+              onChange={handleChange('lastName')}
+              error={errors.lastName}
+              fullWidth
+            />
+            <TextField
               select
               label="Status"
               onChange={handleChange('status')}
@@ -49,14 +77,15 @@ export default function RegisterManagerModal({ open }: {
               <MenuItem value="Zablokowany">Zablokowany</MenuItem>
             </TextField>
             <TextField
-              label="Login"
+              label="Sugerowany login"
               value={form.login}
+              onChange={handleChange('login')}
               error={errors.login}
               fullWidth
             />
             <Box
               sx={{
-                gridColumn: 'span 1',
+                gridColumn: 'span 2',
                 display: 'flex',
                 justifyContent: 'center',
                 mt: 1,
@@ -67,6 +96,14 @@ export default function RegisterManagerModal({ open }: {
           </Box>
         </DialogContent>
       </Dialog>
+
+      {/* Success Modal */}
+      <RegistrationSuccessModal
+        open={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        login={form.login}
+        password={generatedPassword}
+      />
     </>
   );
 }

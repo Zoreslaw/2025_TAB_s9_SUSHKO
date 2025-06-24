@@ -10,6 +10,8 @@ const Header: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
   
   const isAdmin = user?.role === UserRoles.ADMIN;
+  const isManager = user?.role === UserRoles.MANAGER;
+  const isManagerOrAdmin = user?.role === UserRoles.MANAGER || user?.role === UserRoles.ADMIN;
 
   return (
     <AppBar position="static" sx={{ backgroundColor: 'white', color: 'black', boxShadow: 1, position: 'fixed', zIndex: 1000 }}>
@@ -54,6 +56,20 @@ const Header: React.FC = () => {
               }}
             >
               DASHBOARD
+            </Button>
+          )}
+          
+          {isManagerOrAdmin && (
+            <Button 
+              component={Link} 
+              to="/manager" 
+              sx={{ 
+                mx: 1, 
+                color: location.pathname.startsWith('/manager') ? 'primary.main' : 'inherit',
+                fontWeight: location.pathname.startsWith('/manager') ? 'bold' : 'normal'
+              }}
+            >
+              MANAGER PANEL
             </Button>
           )}
           
