@@ -54,7 +54,7 @@ const AppContent: React.FC = () => {
           </Route>
           
           {/* Manager routes */}
-          <Route element={<ProtectedRoute requiredRoles={[UserRoles.MANAGER, UserRoles.ADMIN]} />}>
+            <Route element={<ProtectedRoute requiredRoles={[UserRoles.MANAGER, UserRoles.ADMIN]} />}>
             <Route path="/manager" element={<ManagerPage />}>
               <Route index element={<ManagerDashboard />} />
               <Route path="issues" element={<ManagerIssuesPage />} />
