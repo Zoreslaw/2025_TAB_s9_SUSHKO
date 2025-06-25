@@ -1,206 +1,240 @@
-# Property Management System
+# MieszkaMy.pl – Property & Community Management Platform
 
-A comprehensive property management system with user management, payment tracking, and issue reporting functionality.
+## Table of Contents
+1. Overview
+2. Tech-stack
+3. Features & Domain Concepts
+4. Project Structure
+5. Getting Started
+   * Prerequisites
+   * Back-end setup
+   * Front-end setup
+6. Environment Configuration
+7. Available NPM & .NET commands
+8. REST API Reference
+9. Seed Data & Default Accounts
+10. Contributing
+11. License
 
-## System Overview
+---
 
-This system consists of:
-- **Frontend**: React TypeScript application with Material-UI components
-- **Backend**: ASP.NET Core Web API with Entity Framework Core
-- **Database**: PostgreSQL database
+## 1. Overview
+**MieszkaMy.pl** is a full-stack web application that helps administrators, managers and residents to collaborate around a residential building.  The platform offers:
+* **Building & apartment registry** – keep track of every object you manage.
+* **User & role management** – Admin, Manager, Tenant and Resident roles with dedicated dashboards.
+* **Issue tracking** – Residents can report faults; managers can assign operators and monitor progress.
+* **Work orders & contractors** – Convert issues to orders, track costs and completion.
+* **Payments** – Generate and collect payments for rent or repairs, directly linked to orders & apartments.
+* **Notification centre** – Real-time information about everything that matters.
 
-## Frontend Functionality
+The back-end is written in ASP.NET Core 8 (EF Core + PostgreSQL) and the front-end in React 19 + TypeScript (Vite 6 + Material UI 6).
 
-### User Management
-- **User Registration**: Register new residents, tenants, and managers
-- **User Editing**: Update user information and status
-- **User Table**: View all users with search and filtering capabilities
-- **Role-based Access**: Different roles (Admin, Manager, Resident, Tenant)
+---
 
-### Payment Management
-- **Payment Tracking**: View all payments with status tracking
-- **Payment Creation**: Create new payment records
-- **Payment History**: Track payment history and outstanding amounts
-- **Payment Status**: Pending, Paid, Overdue, Cancelled
+## 2. Tech-stack
+| Layer  | Technology |
+|--------|------------|
+| Front-end | React 19, TypeScript 5, Vite 6, Material-UI 6, Styled Components, React-Router v7 |
+| Back-end | ASP.NET Core 8 (Web API), Entity Framework Core 9, Npgsql, BCrypt.Net, Swagger / Swashbuckle |
+| Database | PostgreSQL ≥ 15 |
+| Tooling  | ESLint, TypeScript compiler, dotnet-EF migrations, Swagger UI |
 
-### Issue Management
-- **Issue Reporting**: Report maintenance and other issues
-- **Issue Tracking**: Track issue status and progress
-- **Issue Types**: Maintenance, Payment, Other
-- **Issue Status**: New, In Progress, Resolved, Cancelled
+---
 
-### Dashboard
-- **Payments Panel**: Overview of pending and overdue payments
-- **Issues Panel**: Active issues and resolution progress
-- **Notifications**: System notifications and alerts
+## 3. Features & Domain Concepts
+* **Users & Roles**
+  * `admin` – full access to everything.
+  * `manager` – manages issues, orders, payments, notifications.
+  * `tenant` – resident that rents an apartment and is financially responsible.
+  * `resident` – regular inhabitant.
+* **Buildings & Apartments** – physical objects that group residents.
+* **Issues** – fault reports created by residents and processed by managers/operators.
+* **Orders** – repair or service orders created by managers from issues.
+* **Payments** – invoices linked to orders or rent, approved by managers and paid by tenants.
+* **Notifications** – system messages for any important event (new issue, payment due, status change, etc.).
 
-## Backend API Endpoints
+---
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-
-### Users
-- `GET /api/users` - Get all users
-- `GET /api/users/{id}` - Get user by ID
-- `POST /api/users` - Create new user
-- `PUT /api/users/{id}` - Update user
-- `DELETE /api/users/{id}` - Delete user
-- `POST /api/users/register` - Register resident with apartment info
-
-### Issues
-- `GET /api/issues` - Get all issues
-- `GET /api/issues/{id}` - Get issue by ID
-- `POST /api/issues` - Create new issue
-- `PUT /api/issues/{id}` - Update issue
-- `DELETE /api/issues/{id}` - Delete issue
-
-### Payments
-- `GET /api/payments` - Get all payments
-- `GET /api/payments/{id}` - Get payment by ID
-- `POST /api/payments` - Create new payment
-- `PUT /api/payments/{id}` - Update payment
-- `DELETE /api/payments/{id}` - Delete payment
-
-### Notifications
-- `GET /api/notifications` - Get all notifications
-
-## Data Models
-
-### User
-```typescript
-interface User {
-  userId: string;
-  login: string;
-  password: string;
-  avatarUrl: string;
-  role: UserRoles;
-  userStatus: UserStatus;
-  userCreationDate: Date;
-}
+## 4. Project Structure (monorepo)
+```text
+2025_TAB_s9_SUSHKO/
+├── client/            # React front-end (Vite)
+│   ├── src/
+│   │   ├── components/ …
+│   │   ├── pages/      # React-Router pages (Home, Dashboard, Managers, Admin, …)
+│   │   ├── hooks/      # Custom React hooks interacting with the API
+│   │   ├── contexts/   # Global React contexts (Auth, UserTable …)
+│   │   └── services/   # `api.ts` – API layer mapping REST ↔︎ TS models
+│   └── package.json
+├── server/            # ASP.NET Core back-end
+│   ├── Controllers/    # REST endpoints (Users, Auth, Issues, Orders, …)
+│   ├── Data/           # EF Core DbContext & seeding
+│   ├── Models/         # Domain entities & DTOs
+│   ├── Migrations/     # Auto-generated EF migrations
+│   └── Program.cs      # Web host configuration
+└── README.md           # ← you are here
 ```
 
-### Resident
-```typescript
-interface Resident extends User {
-  residentId: string;
-  userId: string;
-  apartmentId: string;
-  firstName: string;
-  lastName: string;
-  address: string;
-  apartmentNumber: string;
-  moveInDate: Date;
-  residentStatus: ResidentStatus;
-  moveOutDate?: Date;
-}
+---
+
+## 5. Getting Started
+### 5.1 Prerequisites
+* **Node.js** ≥ 18 (npm is bundled).  
+* **.NET SDK** 8.0 
+* **PostgreSQL** ≥ 15 running locally (default connection string uses `postgres:admin`).
+
+### 5.2 Back-end setup
+```bash
+# from repo root
+cd server
+# restore dependencies & build
+ dotnet restore
+ dotnet build
+
+# apply the EF Core migrations (creates db `ski_station_db` by default)
+ dotnet ef database update
+
+# run the API on https://localhost:5213
+ dotnet run
 ```
+Swagger UI will be available at `https://localhost:5213/swagger` in development mode.
 
-### Payment
-```typescript
-interface Payment {
-  paymentId: string;
-  payerId: string;
-  approverId?: string;
-  apartmentId: string;
-  amount: number;
-  description: string;
-  paymentDate: Date;
-  dueDate: Date;
-  status: PaymentStatus;
-  type: PaymentType;
-}
+### 5.3 Front-end setup
+```bash
+# from repo root
+cd client
+npm install
+# start Vite dev server on http://localhost:5173
+npm run dev
 ```
+The client is configured (`api.ts`) to call the API at `http://localhost:5213/api`.  Make sure the back-end is running or adjust the base URL accordingly.
 
-### Issue
-```typescript
-interface Issue {
-  issueId: string;
-  issuerId: string;
-  operatorId?: string;
-  description: string;
-  status: IssueStatus;
-  type: IssueType;
-  creationDate: Date;
-  updateDate?: Date;
-}
+---
+
+## 6. Environment Configuration
+The most common parameters can be changed via:
+* **server/appsettings.json** – update `ConnectionStrings:DefaultConnection` if your PostgreSQL user/password differ.
+* **CORS** is configured in `Program.cs` to allow `http://localhost:5173` & `http://localhost:3000`; add extra origins if needed.
+
+>  Note: no additional environment variables are required for local development.
+
+---
+
+## 7. Useful Commands
+### Front-end (inside `client/`)
+* `npm run dev` – hot-reload dev server (Vite)
+* `npm run build` – production build
+* `npm run preview` – preview built assets locally
+* `npm run lint` – run ESLint
+
+### Back-end (inside `server/`)
+* `dotnet run` – launch API with watch reload
+* `dotnet ef migrations add <Name>` – create new migration
+* `dotnet ef database update` – apply the latest migrations
+
+---
+
+## 8. REST API Reference (JSON over HTTPS)
+Base URL: `http://localhost:5213/api`
+
+### 8.1 Authentication
+| Method | Endpoint | Body | Description |
+|--------|----------|------|-------------|
+| POST | `/auth/login` | `{ login, password }` | Authenticate, returns user profile & residents |
+| POST | `/auth/logout` | – | Dummy endpoint (token invalidation placeholder) |
+
+### 8.2 Users
+| Method | Endpoint | Body | Notes |
+|--------|----------|------|-------|
+| GET | `/users` | – | List all users (admin/manager) |
+| GET | `/users/{id}` | – | Get single user |
+| POST | `/users` | `CreateUserDto` | Create generic user |
+| PUT | `/users/{id}` | `UpdateUserDto` | Partial update |
+| DELETE | `/users/{id}` | – | Delete user |
+| POST | `/users/register` | `RegisterResidentDto` | Register Resident/Tenant & assign apartment |
+| POST | `/users/register-manager` | `RegisterResidentDto` | Register Manager / Admin |
+
+### 8.3 Buildings & Apartments
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/buildings` | All buildings |
+| GET | `/buildings/{id}` | Single building |
+| POST | `/buildings` | Create |
+| PUT | `/buildings/{id}` | Update |
+| DELETE | `/buildings/{id}` | Delete |
+| GET | `/apartments` | All apartments with building address |
+| GET | `/apartments/{id}` | Single apartment |
+| POST | `/apartments` | Create |
+| PUT | `/apartments/{id}` | Update |
+| DELETE | `/apartments/{id}` | Delete |
+
+### 8.4 Issues
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/issues?userId=&userRole=` | List issues (role-aware) |
+| GET | `/issues/user/{userId}` | Issues reported by user |
+| GET | `/issues/{id}` | Single issue |
+| POST | `/issues` | Create issue (resident) |
+| PUT | `/issues/{id}` | Update (manager) |
+| PUT | `/issues/{id}/assign` | Assign operator (manager) – body: `operatorId` |
+| PUT | `/issues/{id}/status` | Change status – body: `"new_status"` |
+| DELETE | `/issues/{id}` | Remove issue |
+
+### 8.5 Orders
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/orders?userId=&userRole=` | List orders (role-aware) |
+| GET | `/orders/{id}` | Single order |
+| POST | `/orders` | Create (manager) |
+| PUT | `/orders/{id}` | Update |
+| DELETE | `/orders/{id}` | Delete |
+
+### 8.6 Payments
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/payments?userId=&userRole=` | List payments (role-aware) |
+| GET | `/payments/{id}` | Single payment |
+| GET | `/payments/user/{userId}` | Payments related to user's apartments |
+| POST | `/payments` | Create payment |
+| POST | `/payments/from-order/{orderId}` | Auto-create payment from completed order (body: `approverId`) |
+| PUT | `/payments/{id}` | Update payment |
+| DELETE | `/payments/{id}` | Delete |
+
+### 8.7 Notifications
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/notifications?userId=&userRole=` | List notifications (role-aware) |
+| GET | `/notifications/user/{userId}` | User notifications |
+| GET | `/notifications/{id}` | Single notification |
+| POST | `/notifications` | Create custom notification |
+| PUT | `/notifications/{id}` | Update (mark read, etc.) |
+| PUT | `/notifications/{id}/read` | Mark as read |
+| DELETE | `/notifications/{id}` | Delete |
+
+### 8.8 Tickets (experimental)
+| GET `/tickets` · POST `/tickets` |
+
+All endpoints return standard HTTP status codes (`200`, `201`, `204`, `400`, `401`, `404`) and a JSON body (DTO) described in the Swagger UI.
+
+---
+
+## 9. Seed Data & Default Accounts
+On first launch the `SeedData.Initialize` method populates the database with demo data (buildings, apartments, users, etc.).  Additionally a script `server/add-zorik-admin.sql` can be executed to create an extra admin:
 ```
+login: zorik
+password: admin123  (stored hashed in DB)
+```
+Feel free to adjust or disable the seeding logic in `server/Data/SeedData.cs`.
 
-## Setup Instructions
+---
 
-### Backend Setup
-1. Navigate to the `server` directory
-2. Update connection string in `appsettings.json`
-3. Run database migrations:
-   ```bash
-   dotnet ef database update
-   ```
-4. Start the server:
-   ```bash
-   dotnet run
-   ```
+## 10. Contributing
+Pull requests are welcome!  Please open an issue first to discuss significant changes.  Make sure to:
+1. Follow the existing code style (ESLint / dotnet format).
+2. Add unit or integration tests when you add new behaviour.
+3. Ensure both `npm run lint` and `dotnet build` pass before submitting.
 
-### Frontend Setup
-1. Navigate to the `client` directory
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+---
 
-## Testing
-
-Use the provided `test-endpoints.http` file to test all API endpoints. You can run these tests in VS Code with the REST Client extension or in any HTTP client like Postman.
-
-## Key Features Implemented
-
-### ✅ Complete CRUD Operations
-- User management (Create, Read, Update, Delete)
-- Issue management (Create, Read, Update, Delete)
-- Payment management (Create, Read, Update, Delete)
-
-### ✅ Frontend-Backend Integration
-- API service layer with proper error handling
-- Custom hooks for data management
-- Real-time data updates
-
-### ✅ User Registration System
-- Automatic building and apartment creation
-- Role-based user creation
-- Password hashing with BCrypt
-
-### ✅ Dashboard Functionality
-- Payment overview with outstanding amounts
-- Issue tracking with progress indicators
-- Real-time data display
-
-### ✅ Form Validation
-- Client-side validation for all forms
-- Error handling and user feedback
-- Auto-generated login credentials
-
-## Missing Functionality (To Be Implemented)
-
-1. **File Upload**: Issue attachments and user avatars
-2. **Email Notifications**: Automated email notifications
-3. **Advanced Search**: More sophisticated filtering options
-4. **Reports**: Payment and issue reports
-5. **Audit Logging**: Track all system changes
-6. **Mobile App**: React Native mobile application
-
-## Security Features
-
-- Password hashing with BCrypt
-- Input validation and sanitization
-- Role-based access control
-- Secure API endpoints
-
-## Performance Optimizations
-
-- Efficient database queries with Entity Framework
-- Frontend state management with React hooks
-- Optimized API responses with DTOs
-- Lazy loading for large datasets
+## 11. License
+This project is released under the MIT License – see `LICENSE` for details.
