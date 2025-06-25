@@ -220,13 +220,33 @@ namespace server.Controllers
                 return BadRequest("No apartment found for the issue issuer");
             }
 
-            // Find the tenant who is responsible for this apartment
-            // We need to find a tenant who has this apartment and is currently active
             var tenant = await _context.Tenants
                 .Include(t => t.Resident)
                     .ThenInclude(r => r.User)
-                .Where(t => t.ApartmentId == issueApartment.ApartmentId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(t => t.ApartmentId == issueApartment.ApartmentId);
+
+            if (tenant == null)
+            {
+                var activeResident = await _context.Residents
+                    .Include(r => r.User)
+                    .Where(r => r.ApartmentId == issueApartment.ApartmentId && r.ResidentStatus.ToLower() == "active")
+                    .OrderBy(r => r.MoveinDate)
+                    .FirstOrDefaultAsync();
+
+                if (activeResident != null)
+                {
+                    tenant = new Tenant
+                    {
+                        ResidentId = activeResident.ResidentId,
+                        ApartmentId = activeResident.ApartmentId,
+                        LeaseStartDate = activeResident.MoveinDate,
+                        LeaseEndDate = activeResident.MoveoutDate
+                    };
+
+                    _context.Tenants.Add(tenant);
+                    await _context.SaveChangesAsync();
+                }
+            }
 
             if (tenant == null)
             {
